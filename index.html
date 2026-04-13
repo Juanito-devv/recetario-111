@@ -3,334 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recetario 111 Recetas</title>
+    <title>Nutri-Asistente Elite | 111 Recetas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* DISEÑO PROFESIONAL PARA MAGA */
         :root {
-            --primario: #556b2f; /* Verde oliva gourmet */
-            --secundario: #e9edc9; /* Crema suave */
-            --fondo: #fefae0; /* Blanco hueso cálido */
-            --texto: #283618; /* Verde oscuro para lectura fácil */
-            --blanco: #ffffff;
+            --primary: #2d6a4f;
+            --secondary: #95d5b2;
+            --accent: #ff7b54;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #1b4332;
         }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--fondo);
-            color: var(--texto);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        header { background: var(--primary); color: white; padding: 3rem 1rem; text-align: center; border-radius: 0 0 40px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        header h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+
+        .search-container { max-width: 800px; margin: -30px auto 25px; padding: 0 1rem; }
+        input[type="text"] { width: 100%; padding: 18px 28px; border-radius: 50px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.1); font-size: 1rem; outline: none; }
+
+        .filters { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; padding: 0 1rem; }
+        .filter-btn { padding: 8px 20px; border-radius: 20px; border: 1.5px solid var(--primary); background: white; color: var(--primary); cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .filter-btn.active, .filter-btn:hover { background: var(--primary); color: white; }
+
+        .magic-btn { display: block; margin: 0 auto 30px; background: var(--accent); color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 123, 84, 0.4); transition: transform 0.2s; }
+        .magic-btn:active { transform: scale(0.95); }
+
+        #menu-result { max-width: 800px; margin: 0 auto 30px; padding: 25px; background: #e9f5ee; border-radius: 25px; display: none; border: 2px dashed var(--primary); text-align: center; }
+
+        .recipes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 0 2rem 4rem; max-width: 1200px; margin: 0 auto; }
+        .recipe-card { background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: all 0.3s ease; cursor: pointer; position: relative; border: 1px solid transparent; }
+        .recipe-card:hover { transform: translateY(-8px); border-color: var(--secondary); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .recipe-content { padding: 25px; }
+        
+        .recipe-number { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary); opacity: 0.1; }
+        .category-tag { font-size: 0.65rem; text-transform: uppercase; background: var(--secondary); color: var(--primary); padding: 5px 12px; border-radius: 50px; font-weight: bold; }
+        .recipe-card h3 { margin: 15px 0 10px; font-size: 1.2rem; line-height: 1.3; padding-right: 30px; }
+        .recipe-card p { font-size: 0.85rem; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 30px; padding: 40px; position: relative; max-height: 90vh; overflow-y: auto; animation: popUp 0.3s ease; }
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 2rem; cursor: pointer; color: #ccc; transition: 0.2s; }
+        .close-modal:hover { color: var(--accent); }
+        
+        .modal h2 { color: var(--primary); margin-bottom: 20px; padding-right: 30px; font-size: 1.8rem; }
+        .modal-section { margin-bottom: 25px; }
+        .modal-section h4 { color: var(--accent); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 8px; }
+        .modal-section p { font-size: 1.05rem; color: #444; }
+
+        @media (max-width: 600px) {
+            .recipes-grid { padding: 0 1rem 3rem; }
+            header h1 { font-size: 1.6rem; }
+            .modal-content { padding: 30px 20px; }
         }
-
-        /* CABECERA */
-        header {
-            background-color: var(--primario);
-            color: var(--blanco);
-            text-align: center;
-            padding: 30px 15px;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        header h1 { margin: 0; font-size: 28px; }
-        header p { margin: 5px 0 0; opacity: 0.9; font-style: italic; font-size: 16px; }
-
-        /* BUSCADOR */
-        .buscador-contenedor {
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        #buscador {
-            width: 90%;
-            max-width: 500px;
-            padding: 15px 20px;
-            font-size: 18px;
-            border: 2px solid var(--primario);
-            border-radius: 50px;
-            outline: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        /* CATEGORÍAS RÁPIDAS */
-        .categorias-nav {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding: 0 20px 20px;
-            scrollbar-width: none;
-        }
-        .categorias-nav::-webkit-scrollbar { display: none; }
-
-        .btn-cat {
-            background-color: var(--secundario);
-            border: 1px solid var(--primario);
-            padding: 8px 18px;
-            border-radius: 20px;
-            white-space: nowrap;
-            font-weight: bold;
-            color: var(--primario);
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        /* LISTA DE RECETAS */
-        .lista-recetas {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-            padding: 10px 20px 40px;
-        }
-
-        .tarjeta-receta {
-            background: var(--blanco);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 6px solid var(--primario);
-            transition: 0.2s;
-        }
-
-        .tarjeta-receta:active { transform: scale(0.98); }
-
-        /* VISTA DETALLE */
-        #vista-receta {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--fondo);
-            overflow-y: auto;
-            z-index: 1000;
-        }
-
-        .btn-volver {
-            background-color: var(--primario);
-            color: white;
-            width: 100%;
-            padding: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            border: none;
-            position: sticky;
-            top: 0;
-            text-align: left;
-        }
-
-        .contenido-receta { padding: 25px; max-width: 600px; margin: auto; }
-        .contenido-receta h2 { font-size: 28px; color: var(--primario); margin-top: 0; }
-        .seccion-tit { 
-            background: var(--secundario); 
-            padding: 5px 15px; 
-            border-radius: 10px; 
-            display: inline-block; 
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        .contenido-receta ul, .contenido-receta ol { font-size: 19px; line-height: 1.6; padding-left: 20px; }
-        .contenido-receta li { margin-bottom: 12px; }
-
     </style>
 </head>
 <body>
 
-    <div id="pantalla-principal">
-        <header>
-            <h1>Recetario 111 Recetas</h1>
-            <p>Hecho con amor para Maga 🤍</p>
-        </header>
+<header>
+    <h1>🥗 Nutri-Asistente Elite</h1>
+    <p>111 Recetas de Nutrillermo transcritas del PDF</p>
+</header>
 
-        <div class="buscador-contenedor">
-            <input type="text" id="buscador" placeholder="🔍 Buscar receta o ingrediente..." onkeyup="filtrarRecetas()">
-        </div>
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Busca ingrediente o receta (ej: aguacate, salmón)...">
+</div>
 
-        <div class="categorias-nav">
-            <button class="btn-cat" onclick="filtrarPorCat('Todas')">Todas</button>
-            <button class="btn-cat" onclick="filtrarPorCat('Desayunos')">🍳 Desayunos</button>
-            <button class="btn-cat" onclick="filtrarPorCat('Pollo')">🍗 Pollo</button>
-            <button class="btn-cat" onclick="filtrarPorCat('Carne')">🥩 Carnes</button>
-            <button class="btn-cat" onclick="filtrarPorCat('Pescado')">🐟 Pescados</button>
-            <button class="btn-cat" onclick="filtrarPorCat('Postres')">🍰 Postres</button>
-        </div>
+<div class="filters">
+    <button class="filter-btn active" onclick="filterCategory('all')">Todo</button>
+    <button class="filter-btn" onclick="filterCategory('Desayunos')">Desayunos</button>
+    <button class="filter-btn" onclick="filterCategory('Proteínas')">Proteínas</button>
+    <button class="filter-btn" onclick="filterCategory('Vegetales')">Vegetales</button>
+    <button class="filter-btn" onclick="filterCategory('Cremas')">Cremas</button>
+</div>
 
-        <div class="lista-recetas" id="contenedor-recetas"></div>
+<button class="magic-btn" onclick="generateRandomMenu()">✨ Generar Menú Sorpresa</button>
+
+<div id="menu-result"></div>
+
+<div class="recipes-grid" id="recipesGrid"></div>
+
+<div id="recipeModal" class="modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="document.getElementById('recipeModal').style.display='none'">&times;</span>
+        <div id="modalBody"></div>
     </div>
+</div>
 
-    <div id="vista-receta">
-        <button class="btn-volver" onclick="cerrarReceta()">⬅ Volver al listado</button>
-        <div class="contenido-receta" id="detalle-receta"></div>
-    </div>
+<script>
+    const recetario = [
+        { n: 1, cat: "Desayunos", titulo: "Huevos con Bacon y Aguacate", ing: "2 huevos, 1/2 aguacate, 2-3 tiras de bacon", prep: "Freír las tiras de bacon. Cuando estén listas, retirar de la sartén y freír los huevos en la misma grasa. Servir acompañado del aguacate." },
+        { n: 2, cat: "Desayunos", titulo: "Omelette con Hongos", ing: "2 huevos, hongos al gusto, aceitunas negras, aceite de oliva, queso mozzarella", prep: "Batir los huevos con una pizca de sal. Freír en forma de tortilla. Agregar los hongos, aceitunas y queso. Doblar por la mitad." },
+        { n: 3, cat: "Desayunos", titulo: "Omelette con Zucchini", ing: "2 huevos, zucchini, albahaca, aceite de oliva, queso feta", prep: "Batir los huevos con sal. Freír en sartén. Agregar zucchini, albahaca y queso feta. Doblar por la mitad." },
+        { n: 4, cat: "Desayunos", titulo: "Omelette Capresa", ing: "2 huevos, 1 tomate, albahaca, aceite de oliva, mozzarella", prep: "Batir huevos. Freír en forma de tortilla. Rellenar con tomate picado, albahaca y queso. Doblar." },
+        { n: 5, cat: "Desayunos", titulo: "Huevos Fritos con Bacon y Espinacas", ing: "1-2 huevos, 2 tiras de bacon, espinaca al gusto, aceite de oliva", prep: "Freír el bacon. Retirar y freír los huevos en la misma grasa/aceite. Servir sobre una cama de espinacas frescas." },
+        { n: 6, cat: "Desayunos", titulo: "Cheesy Eggs", ing: "1-2 huevos, mozzarella, sal, pimienta, cilantro, aceite de oliva", prep: "En un molde para cupcake, agregar aceite de oliva y el huevo. Añadir queso y condimentos. Hornear por 10-15 min." },
+        { n: 7, cat: "Desayunos", titulo: "Cheesy Bacon Eggs", ing: "1-2 huevos, 2-4 tiras de bacon, mozzarella, sal, pimienta, cilantro", prep: "Colocar el bacon en forma circular dentro de un molde de cupcake. Agregar el huevo, queso y especias. Hornear 10-15 min." },
+        { n: 8, cat: "Desayunos", titulo: "Aguacate Relleno de Huevo", ing: "1 huevo duro en trocitos, cream cheese, apio picado, 1 aguacate mediano", prep: "Mezclar el huevo con el apio y el queso. Partir el aguacate, retirar la semilla y rellenar el centro con la mezcla." },
+        { n: 9, cat: "Desayunos", titulo: "Huevos con Salmón", ing: "Arúgula, 2 lonjas de salmón ahumado, 1-2 huevos revueltos, parmesano", prep: "Colocar base de arúgula. Poner el salmón con los huevos encima y espolvorear el queso." },
+        { n: 10, cat: "Desayunos", titulo: "Quiche de Coliflor", ing: "1 coliflor pequeña, 3 huevos, mozzarella, albahaca", prep: "Procesar la coliflor para formar la base en un molde. Batir los huevos, agregarlos con la albahaca y queso. Hornear 15-20 min." },
+        { n: 11, cat: "Desayunos", titulo: "Huevos en Taza", ing: "Espinacas, 2 huevos, queso feta", prep: "En una taza, colocar los huevos, la espinaca y el queso. Mezclar y llevar al microondas por 5-8 min." },
+        { n: 12, cat: "Desayunos", titulo: "Pancakes de Requesón", ing: "200g requesón, 2 huevos, 1 cda linaza, mantequilla", prep: "Mezclar huevos, requesón y linaza. Reposar 5 min. Freír en sartén con mantequilla por ambos lados." },
+        { n: 13, cat: "Desayunos", titulo: "Berrypancakes", ing: "3 cdas harina almendras, 2 huevos, cream cheese, vainilla, berries", prep: "Licuar harina y huevos, ajustar con cream cheese. Cocinar en sartén y agregar las berries al final." },
+        { n: 14, cat: "Desayunos", titulo: "Pancakes de Coliflor", ing: "1/2 coliflor al vapor, 2 huevos, 2 cdas harina almendras, canela, mantequilla", prep: "Licuar coliflor, huevos y harina. Agregar canela. Cocinar en sartén con mantequilla poco a poco." },
+        { n: 15, cat: "Desayunos", titulo: "Coffee Pancakes", ing: "3 cdas harina de coco, 2 huevos, cream cheese, vainilla, 1 cdita café", prep: "Licúa los ingredientes. Ajusta consistencia con el cream cheese. Cocina en sartén antiadherente." },
+        { n: 16, cat: "Desayunos", titulo: "Chocopancakes", ing: "3 cdas harina de coco, 2 huevos, 1 cda cacao puro, 1 cda mantequilla", prep: "Licúa todos los ingredientes. Cocina en sartén a fuego medio-bajo poco a poco." },
+        { n: 17, cat: "Desayunos", titulo: "Pancakes de Coco", ing: "3 cdas harina de coco, 2 huevos, 1 cda coco rallado, aceite de coco", prep: "Licúa huevos y harina. Agrega el coco rallado. Cocina en sartén con aceite de coco." },
+        { n: 18, cat: "Desayunos", titulo: "Pancakenuts", ing: "2 huevos, 3 cdas harina de almendras, nueces troceadas, canela, mantequilla", prep: "Licúa harina y huevos. Agrega nueces y canela. Cocina en sartén con mantequilla." },
+        { n: 19, cat: "Desayunos", titulo: "Pancakes de Brócoli", ing: "3 cdas harina de almendras, 2 huevos, 1/4 brócoli al vapor, ghee", prep: "Licúa todos los ingredientes. Cocina en sartén con ghee hasta que doren." },
+        { n: 20, cat: "Desayunos", titulo: "Pancakes de Canela", ing: "3 cdas harina de coco, 2 huevos, cream cheese, 2 cditas canela, ghee", prep: "Licúa los ingredientes. Cocina en sartén pequeña para que queden esponjosos." },
+        { n: 21, cat: "Desayunos", titulo: "Avopancakes", ing: "3 cdas harina de coco, 2 huevos, 1/2 aguacate, vainilla", prep: "Licúa todo. Si la mezcla está muy espesa, agrega un poco de agua. Cocina en sartén." },
+        { n: 22, cat: "Desayunos", titulo: "Pancakes de Mantequilla", ing: "3 cdas harina de almendras, 2 huevos, 2 cdas mantequilla, cream cheese", prep: "Licúa y cocina. Estos pancakes son muy densos en grasa, ideales para saciedad prolongada." },
+        { n: 23, cat: "Vegetales", titulo: "Cereal de Coliflor", ing: "1/2 coliflor ralliada, leche de coco sin azúcar, almendras, vainilla", prep: "Cocer la coliflor ralliada por 3 min. Escurrir. Colocar en bowl con leche de coco y almendras." },
+        { n: 24, cat: "Vegetales", titulo: "Hash Brown de Coliflor", ing: "1 coliflor pequeña, 2 huevos, sal, pimienta, aceite de oliva", prep: "Mezcla la coliflor rallada con huevo y especias. Forma tortitas y fríe en sartén hasta que doren." },
+        { n: 25, cat: "Vegetales", titulo: "Bacon Avocado", ing: "1 aguacate en tajadas, tiras de bacon", prep: "Enrolla el bacon en las tajadas de aguacate. Fríe en sartén hasta que el bacon esté crujiente." },
+        { n: 26, cat: "Desayunos", titulo: "Aguacate Relleno de Huevo y Salmón", ing: "1 aguacate, 1 huevo, 2 lonjas de salmón ahumado", prep: "Quita la semilla del aguacate. Coloca el salmón y el huevo en el centro. Hornea 5-8 min." },
+        { n: 27, cat: "Vegetales", titulo: "Pastel de Coliflor", ing: "1 coliflor procesada, 2 huevos, 2 cdas harina almendras, aceite de oliva", prep: "Mezcla los ingredientes en un molde. Hornea 15-20 min hasta que esté firme y dorado." },
+        { n: 28, cat: "Vegetales", titulo: "Chocomousse de Aguacate", ing: "1 aguacate, 1 cda cacao puro, 1 cda coco rallado", prep: "Licúa el aguacate con el cacao hasta que esté cremoso. Sirve y decora con coco." },
+        { n: 29, cat: "Vegetales", titulo: "Tortilla de Coliflor con Bacon", ing: "1/2 coliflor ralliada, 1 huevo, perejil, 2 tiras de bacon", prep: "Mezcla coliflor, huevo y perejil. Fríe como tortilla. Sirve con el bacon frito encima." },
+        { n: 30, cat: "Vegetales", titulo: "Hash Brown de Repollo", ing: "1 repollo rallado, 1 huevo, sal, pimienta, aceite de oliva", prep: "Mezcla repollo y huevo. Forma tortitas y fríe por ambos lados." },
+        { n: 31, cat: "Vegetales", titulo: "Tortillas con Guacamole", ing: "3 cdas harina almendras, 1 huevo, 1 aguacate, albahaca", prep: "Haz la tortilla con huevo y harina. Rellena con el aguacate triturado y albahaca." },
+        { n: 32, cat: "Vegetales", titulo: "Ensalada con Huevo y Salmón", ing: "Mix de verdes, 1 huevo duro, 2 lonjas salmón, aceite de oliva", prep: "Mezcla los verdes con el salmón y el huevo en trozos. Aliña con aceite de oliva." },
+        { n: 33, cat: "Vegetales", titulo: "Cheesy Coliflor con Bacon", ing: "1/2 coliflor, mozzarella, 1 cda mantequilla, 2 tiras de bacon", prep: "Saltea la coliflor procesada con mantequilla. Agrega queso y mezcla con el bacon troceado." },
+        { n: 34, cat: "Cremas", titulo: "Ketocafé", ing: "1 taza de café, 1 cda de mantequilla", prep: "Licúa el café caliente con la mantequilla hasta que haga espuma." },
+        { n: 35, cat: "Cremas", titulo: "Chococafé", ing: "1 taza de café, 1 cdita aceite de coco, 1 cdita cacao puro", prep: "Licúa todos los ingredientes hasta obtener una mezcla homogénea." },
+        { n: 36, cat: "Cremas", titulo: "Cococafé", ing: "1 taza de café, 1 cdita aceite de coco, 1 cdita mantequilla", prep: "Licúa para obtener la versión más densa en energía del Ketocafé." },
+        { n: 37, cat: "Proteínas", titulo: "Pollo a la Mantequilla", ing: "1 pechuga de pollo, ajo, mantequilla, sal y pimienta", prep: "Dora los ajos en mantequilla. Cocina la pechuga condimentada en esa mezcla." },
+        { n: 38, cat: "Vegetales", titulo: "Vainitas con Coco", ing: "Vainitas (green beans), 1 diente de ajo, aceite de coco", prep: "Saltea las vainitas con el aceite de coco y el ajo picado." },
+        { n: 39, cat: "Proteínas", titulo: "Pollo al Horno con Hongos", ing: "1 pechuga en trozos, 1 taza hongos, mantequilla, parmesano", prep: "Coloca todo en un molde. Hornea 30-45 min hasta que el pollo esté cocido." },
+        { n: 40, cat: "Proteínas", titulo: "Tortitas de Pollo con Guacamole", ing: "Pollo molido, parmesano, 1/2 aguacate, cream cheese", prep: "Haz tortitas con el pollo y queso. Fríe. Sirve con el aguacate mezclado con cream cheese." },
+        { n: 41, cat: "Proteínas", titulo: "Cacerola de Pollo y Brócoli", ing: "Pollo, brócoli, mozzarella, parmesano, mantequilla", prep: "En una cacerola coloca pollo y brócoli. Cubre con queso y mantequilla. Hornea/gratina." },
+        { n: 42, cat: "Proteínas", titulo: "Pollo y Espárragos al Coco", ing: "Pollo, espárragos, aceite de coco, jengibre", prep: "Cocina el pollo con jengibre en aceite de coco. Agrega espárragos al final y saltea." },
+        { n: 43, cat: "Proteínas", titulo: "Pechuga rellena de Espinaca", ing: "Pechuga de pollo, espinacas, queso de cabra, aceite de oliva", prep: "Abre la pechuga, rellena con espinaca y queso. Cierra con palillo y hornea 20-30 min." },
+        { n: 44, cat: "Proteínas", titulo: "Pollo al Limón con Celery", ing: "Pechuga de pollo, zumo de limón, apio, mantequilla", prep: "Marina el pollo en limón. Coloca en molde con apio y mantequilla. Hornea 20-30 min." },
+        { n: 45, cat: "Proteínas", titulo: "Corvina al Coco con Ajonjolí", ing: "Filete de corvina, ajonjolí, aceite de coco", prep: "Cocina el pescado en aceite de coco. Espolvorea ajonjolí por ambos lados." },
+        { n: 46, cat: "Proteínas", titulo: "Salmón con Ajo y Jengibre", ing: "Filete de salmón, ajo, jengibre, mantequilla", prep: "Condimenta y cocina en sartén con mantequilla a fuego medio." },
+        { n: 47, cat: "Proteínas", titulo: "Salmón con Espinacas", ing: "Salmón, espinacas, queso de cabra, aceite de oliva", prep: "Cocina el salmón al grill. Saltea espinacas con aceite y queso de cabra. Sirve junto." },
+        { n: 48, cat: "Proteínas", titulo: "Mahi Mahi con Vegetales", ing: "Mahi mahi, vegetales al gusto, aceite de oliva, parmesano", prep: "Coloca todo en una cacerola. Rocía aceite y queso. Hornea 15-20 min." },
+        { n: 49, cat: "Proteínas", titulo: "Corvina con Brócoli", ing: "Corvina, brócoli, aceite de coco", prep: "Cocina el pescado al grill. Saltea el brócoli con el aceite de coco como acompañante." },
+        { n: 50, cat: "Proteínas", titulo: "Salmón al Limón", ing: "Salmón salvaje, zumo de limón, mantequilla", prep: "Marina el salmón en limón. Cocina en plancha con mantequilla." },
+        { n: 51, cat: "Proteínas", titulo: "Bowl de Vegetales y Camarones", ing: "10-12 camarones, vegetales mixtos, ajo, mantequilla", prep: "Cocina camarones con ajo y mantequilla. Sirve sobre los vegetales salteados." },
+        { n: 52, cat: "Proteínas", titulo: "Ensalada con Camarones", ing: "Camarones, arúgula, tomates cherry, queso feta, aceite de oliva", prep: "Cocina camarones con ajo. Mezcla con la arúgula, tomates y queso." },
+        { n: 53, cat: "Proteínas", titulo: "Camarones al Coco", ing: "Camarones, ajo, aceite de coco", prep: "Cocina los camarones en aceite de coco con mucho ajo." },
+        { n: 54, cat: "Proteínas", titulo: "Pimentones Verdes Rellenos", ing: "Pimentones, carne molida, apio, mozzarella", prep: "Rellena los pimentones con carne y queso. Hornea 20-30 min con aceite de oliva." },
+        { n: 55, cat: "Proteínas", titulo: "Carne con Albahaca", ing: "Carne de res, albahaca, mantequilla", prep: "Cocina la carne a tu gusto con mantequilla. Decora con hojas de albahaca fresca." },
+        { n: 56, cat: "Proteínas", titulo: "Bowl de Carne y Bacon", ing: "Carne molida, apio, bacon, mozzarella", prep: "Fríe el bacon. En esa grasa cocina la carne con apio. Mezcla con el queso." },
+        { n: 57, cat: "Proteínas", titulo: "Costillas con Bacon", ing: "Costillas de cerdo, tiras de bacon", prep: "Enrolla cada costilla con bacon y cocina al grill o sartén hasta que dore." },
+        { n: 58, cat: "Proteínas", titulo: "Pinchos de Carne y Zucchini", ing: "Carne en trozos, zucchini, mozzarella fresca", prep: "Arma los pinchos alternando ingredientes. Cocina a la plancha con aceite de oliva." },
+        { n: 59, cat: "Proteínas", titulo: "Berenjena rellena de Carne", ing: "1 berenjena, carne molida, cebollino, parmesano", prep: "Vacia la berenjena, mezcla el centro con carne y rellena. Hornea con queso." },
+        { n: 60, cat: "Proteínas", titulo: "Carne al Grill con Ketosalad", ing: "Carne, berro, queso feta, nueces, apio", prep: "Cocina la carne. Sirve con la ensalada de berro, nueces y queso." },
+        { n: 61, cat: "Proteínas", titulo: "Carne con Hongos y Tomate", ing: "Carne en trozos, tomates cherry, hongos, cilantro", prep: "Cocina todo junto en sartén tapada por 8 min con aceite de oliva." },
+        { n: 62, cat: "Proteínas", titulo: "Cheesy Beef", ing: "Carne en trozos, mozzarella, perejil, aceite de oliva", prep: "Cocina la carne. Agrega el queso al final para que gratine. Decora con perejil." },
+        { n: 63, cat: "Proteínas", titulo: "Hamburguesas de Espinaca", ing: "Carne molida, espinacas picadas, aceite de oliva", prep: "Mezcla carne y espinaca. Forma tortitas y cocina por ambos lados." },
+        { n: 64, cat: "Proteínas", titulo: "Baconburger", ing: "Carne molida, bacon troceado, sal y pimienta", prep: "Mezcla carne con el bacon crudo picado. Forma hamburguesas y cocina al grill." },
+        { n: 65, cat: "Proteínas", titulo: "Lettuce Burger", ing: "Carne molida, hojas de lechuga grandes", prep: "Cocina la carne. Usa las hojas de lechuga como 'pan' para envolver la hamburguesa." },
+        { n: 66, cat: "Proteínas", titulo: "Portobello Burger", ing: "Carne molida, 2 hongos portobello grandes", prep: "Usa los hongos portobello como tapas para tu hamburguesa de carne." },
+        { n: 67, cat: "Vegetales", titulo: "Pizza de Coliflor", ing: "Coliflor ralliada, 1 huevo, mozzarella, salsa tomate casera", prep: "Hornea la base de coliflor y huevo 15 min. Agrega salsa y queso, hornea 5 min más." },
+        { n: 68, cat: "Vegetales", titulo: "Puré de Coliflor con Bacon", ing: "Coliflor, bacon, cream cheese, cebollín", prep: "Cuece la coliflor al vapor y tritura con cream cheese. Agrega bacon frito y cebollín." },
+        { n: 69, cat: "Vegetales", titulo: "Ketoavo", ing: "1 aguacate, 1 cda cream cheese, aceite de oliva", prep: "Tritura el aguacate y mezcla con el resto de ingredientes para un puré denso." },
+        { n: 70, cat: "Vegetales", titulo: "Ketopasta de Zucchini", ing: "1-2 zucchinis, ajo, hongos, parmesano, mantequilla", prep: "Haz tiras del zucchini. Saltea con ajo y mantequilla 3-5 min. Agrega hongos y queso." },
+        { n: 71, cat: "Vegetales", titulo: "Berenjena Rolls", ing: "1 berenjena, requesón, parmesano, albahaca", prep: "Láminas de berenjena rellenas de requesón y albahaca. Enrolla y hornea 15-20 min." },
+        { n: 72, cat: "Vegetales", titulo: "Zucchini Rolls con Atún", ing: "Zucchini, atún, cilantro, aceite de oliva", prep: "Láminas de zucchini rellenas de atún. Sujeta con palillo y decora con cilantro." },
+        { n: 73, cat: "Vegetales", titulo: "Gratinado de Brócoli", ing: "Brócoli, mozzarella, parmesano, mantequilla", prep: "Coloca el brócoli en molde. Cubre con quesos y mantequilla. Hornea 10-15 min." },
+        { n: 74, cat: "Vegetales", titulo: "Tomates rellenos de Atún", ing: "1-2 tomates grandes, atún, apio, cilantro", prep: "Vacía los tomates. Rellena con la mezcla de atún, apio y cilantro." },
+        { n: 75, cat: "Vegetales", titulo: "Gratinado de Espinacas", ing: "Espinacas, pollo en trozos, quesos mixtos, mantequilla", prep: "Coloca todo en un molde y hornea 20-30 min hasta que gratine." },
+        { n: 76, cat: "Vegetales", titulo: "Lasaña de Vegetales", ing: "Zucchini, berenjena, tomate, quesos, carne o atún", prep: "Haz capas de vegetales y relleno. Hornea 20-30 min con mucho aceite de oliva." },
+        { n: 77, cat: "Vegetales", titulo: "Risotto de Coliflor", ing: "1 coliflor rallada, ajo, hongos, mantequilla", prep: "Saltea coliflor con ajo y mantequilla. Agrega hongos y cocina hasta que esté tierno." },
+        { n: 78, cat: "Vegetales", titulo: "Cacerola de Vegetales", ing: "Vegetales al gusto, parmesano, aceitunas, aceite de oliva", prep: "Corta y mezcla todo en un molde. Hornea 15-20 min." },
+        { n: 79, cat: "Vegetales", titulo: "Ketorepollo", ing: "Repollo rallado, aceite de oliva, limón", prep: "Mezcla como ensalada base para acompañar cualquier proteína." },
+        { n: 80, cat: "Vegetales", titulo: "Ketoveggies", ing: "Zucchini, espárragos, hongos, queso de cabra", prep: "Saltea los vegetales en aceite de oliva. Agrega el queso de cabra al final." },
+        { n: 81, cat: "Vegetales", titulo: "Espárragos con Jamón", ing: "Espárragos, jamón serrano, queso de cabra", prep: "Saltea espárragos con queso. Sirve envueltos o acompañados de jamón serrano." },
+        { n: 82, cat: "Vegetales", titulo: "Rollos de Bacon", ing: "Espárragos, tiras de bacon, jengibre", prep: "Envuelve 3 espárragos con bacon. Hornea o cocina al grill hasta que esté crujiente." },
+        { n: 83, cat: "Vegetales", titulo: "Brussels con Bacon", ing: "Coles de bruselas, hongos, bacon", prep: "Fríe bacon. Saltea las coles y hongos en esa misma grasa." },
+        { n: 84, cat: "Vegetales", titulo: "Cacerola de Coliflor", ing: "1 coliflor, apio picado, parmesano, aceite de oliva", prep: "Mezcla en molde y hornea 15-20 min." },
+        { n: 85, cat: "Desayunos", titulo: "Huevos con Vegetales", ing: "1-2 huevos, vegetales mixtos en trozos, aceite de oliva", prep: "Fríe los huevos y agrega vegetales. Tapa la sartén para que se cocinen al vapor." },
+        { n: 86, cat: "Vegetales", titulo: "Zucchini Chips", ing: "1 zucchini, parmesano", prep: "Rodajas muy finas. Espolvorea queso y hornea 15-20 min hasta que estén crujientes." },
+        { n: 87, cat: "Vegetales", titulo: "Bowl Ketoveggies", ing: "Zucchini, hongos, espárragos, aceitunas, queso de cabra", prep: "Saltea todo menos aceitunas y queso. Mezcla en bowl al final." },
+        { n: 88, cat: "Vegetales", titulo: "Hongos a la Mantequilla", ing: "Hongos, 2 cdas ghee, ajo", prep: "Saltea los hongos con ajo picado en el ghee hasta que doren." },
+        { n: 89, cat: "Vegetales", titulo: "Ensalada Zucchini y Hongos", ing: "Zucchini, hongos, aceitunas, apio, aceite de oliva", prep: "Pica todo en cubos pequeños y mezcla con abundante aceite de oliva." },
+        { n: 90, cat: "Vegetales", titulo: "Coliflor al Vapor", ing: "1 coliflor, aceite de oliva, parmesano", prep: "Cocina al vapor. Sirve con aceite de oliva y el queso espolvoreado." },
+        { n: 91, cat: "Desayunos", titulo: "Espinacas con Huevo", ing: "Espinacas, 1-2 huevos, aceite de oliva", prep: "Bate los huevos y fríe. Agrega las espinacas al final hasta que reduzcan." },
+        { n: 92, cat: "Vegetales", titulo: "Zucchini Pasta con Camarón", ing: "1-2 zucchinis, camarones, parmesano, aceite de oliva", prep: "Haz pasta de zucchini. Saltea camarones con ajo. Mezcla todo 2 min." },
+        { n: 93, cat: "Cremas", titulo: "Crema de Espárragos", ing: "Espárragos, ajo, jengibre, aceite de oliva", prep: "Cocina espárragos en agua. Licúa con ajo y jengibre. Sirve con aceite de oliva." },
+        { n: 94, cat: "Cremas", titulo: "Crema de Coliflor", ing: "1 coliflor, ajo, cebolla, quesos", prep: "Cocina y licúa la coliflor. Agrega quesos al servir para mayor densidad." },
+        { n: 95, cat: "Cremas", titulo: "Crema de Brócoli", ing: "1 brócoli, ajo, jengibre", prep: "Cocina y licúa. Esta crema es muy rica en fibra y micronutrientes." },
+        { n: 96, cat: "Cremas", titulo: "Crema de Hongos", ing: "Hongos, ajo, mozzarella", prep: "Licúa los hongos cocidos con ajo. Sirve con queso mozzarella rallado." },
+        { n: 97, cat: "Cremas", titulo: "Crema de Zucchini", ing: "1-2 zucchinis, ajo, jengibre", prep: "Cocina y licúa para obtener una crema suave y ligera." },
+        { n: 98, cat: "Cremas", titulo: "Crema Brócoli y Espinaca", ing: "Brócoli, espinacas, ajo, jengibre", prep: "La combinación perfecta de verdes. Cocina y licúa todo junto." },
+        { n: 99, cat: "Vegetales", titulo: "Ensalada Capresa", ing: "Tomates, mozzarella fresca, albahaca, aceite de oliva", prep: "Rodajas de tomate y queso alternadas con hojas de albahaca." },
+        { n: 100, cat: "Vegetales", titulo: "Keto Salad", ing: "Espinacas, pepino, queso de cabra, aceitunas", prep: "Mezcla base de espinacas con el resto de ingredientes picados." },
+        { n: 101, cat: "Vegetales", titulo: "Ensalada Espinaca y Aguacate", ing: "Espinacas, zucchini, queso de cabra, aguacate, nueces", prep: "Mezcla de texturas crujientes y cremosas con aceite de oliva." },
+        { n: 102, cat: "Vegetales", titulo: "Ensalada Verde con Atún", ing: "Kale, atún, pepino, apio, aceitunas", prep: "El kale aporta una base muy nutritiva para el atún y las grasas." },
+        { n: 103, cat: "Vegetales", titulo: "Ensalada Arúgula y Nueces", ing: "Arúgula, pepino, queso feta, nueces, pollo", prep: "Mezcla completa con proteína para una cena ligera." },
+        { n: 104, cat: "Vegetales", titulo: "Plato de Quesos", ing: "Variedad de quesos, aceitunas verdes y negras", prep: "Ideal como snack o cena rápida de alta densidad grasa." },
+        { n: 105, cat: "Vegetales", titulo: "Ensalada Arúgula y Huevo", ing: "Arúgula, pepino, apio, huevo duro, cilantro", prep: "Mezcla fresca y saciante con proteína de huevo." },
+        { n: 106, cat: "Vegetales", titulo: "Ensalada Berro y Nueces", ing: "Berro fresco, nueces, queso de cabra", prep: "Aliña con abundante aceite de oliva y un toque de limón." },
+        { n: 107, cat: "Vegetales", titulo: "Pasta de Atún", ing: "Atún, cream cheese, apio picado", prep: "Mezcla para obtener una pasta rica para rellenar vegetales." },
+        { n: 108, cat: "Vegetales", titulo: "Ensalada Arúgula y Salmón", ing: "Arúgula, salmón ahumado, pepino", prep: "Clásico gourmet low-carb. Mezcla y disfruta." },
+        { n: 109, cat: "Vegetales", titulo: "Carpaccio de Aguacate", ing: "1 aguacate, alcaparras, parmesano, limón", prep: "Láminas finas de aguacate. Agrega alcaparras, queso y limón." },
+        { n: 110, cat: "Proteínas", titulo: "Ceviche Nutrillermo", ing: "Pescado/camarón, zumo de 5 limones, cebolla, cilantro, pepino", prep: "Marina la proteína en limón 20 min. Agrega vegetales picados." },
+        { n: 111, cat: "Proteínas", titulo: "Carpaccio de Salmón", ing: "Salmón crudo en lascas, aceite de oliva, alcaparras, limón", prep: "Coloca el salmón en plato frío. Aliña con aceite, alcaparras y limón." }
+    ];
 
-    <script>
-        const recetas = [
-            { titulo: "1. Huevos con Bacon y Aguacate", categoria: "Desayunos", ingredientes: ["2 huevos", "1/2 aguacate", "2-3 tiras de bacon"], preparacion: ["Freír el bacon.", "Freír los huevos en la grasa del bacon.", "Servir con aguacate."] },
-            { titulo: "2. Omelette con Hongos", categoria: "Desayunos", ingredientes: ["2 huevos", "Hongos", "Aceitunas negras", "Queso mozzarella"], preparacion: ["Batir huevos.", "Cocinar en sartén.", "Rellenar con hongos, aceitunas y queso."] },
-            { titulo: "3. Pancakes de Requesón", categoria: "Pancakes", ingredientes: ["200g requesón", "2 huevos", "1 cda linaza"], preparacion: ["Mezclar ingredientes.", "Reposar 5 min.", "Cocinar en sartén con mantequilla."] },
-            { titulo: "4. Huevos con Tomate y Cebolla", categoria: "Desayunos", ingredientes: ["2 huevos", "Tomate picado", "Cebolla picada"], preparacion: ["Sofreír vegetales.", "Agregar huevos y revolver."] },
-            { titulo: "5. Huevos con Espinacas", categoria: "Desayunos", ingredientes: ["2 huevos", "Espinacas frescas", "Queso de cabra"], preparacion: ["Saltear espinacas.", "Añadir huevos batidos.", "Terminar con queso."] },
-            { titulo: "6. Pancakes de Harina de Almendra", categoria: "Pancakes", ingredientes: ["1 taza harina almendra", "2 huevos", "Vainilla"], preparacion: ["Mezclar todo.", "Cocinar discos pequeños en sartén."] },
-            { titulo: "7. Revuelto de Salmón Ahumado", categoria: "Desayunos", ingredientes: ["3 huevos", "Salmón ahumado", "Cebollino"], preparacion: ["Cocinar huevos a fuego bajo.", "Mezclar con salmón al final."] },
-            { titulo: "8. Aguacate Relleno de Huevo", categoria: "Desayunos", ingredientes: ["1 aguacate", "2 huevos"], preparacion: ["Poner huevo en el hueco del aguacate.", "Hornear 15 min a 200°C."] },
-            { titulo: "9. Pancakes de Calabaza", categoria: "Pancakes", ingredientes: ["2 huevos", "2 cdas puré calabaza", "Canela"], preparacion: ["Mezclar y cocinar en sartén."] },
-            { titulo: "10. Tostada de Batata con Huevo", categoria: "Desayunos", ingredientes: ["Rodaja de batata asada", "Huevo frito"], preparacion: ["Usar batata como base.", "Poner huevo encima."] },
-            { titulo: "11. Muffins de Huevo y Vegetales", categoria: "Desayunos", ingredientes: ["6 huevos", "Vegetales picados"], preparacion: ["Repartir en moldes de muffin.", "Hornear 20 min."] },
-            { titulo: "12. Pancakes de Coco", categoria: "Pancakes", ingredientes: ["Harina de coco", "Huevos"], preparacion: ["Mezclar, reposar y freír."] },
-            { titulo: "13. Shakshuka Express", categoria: "Desayunos", ingredientes: ["Huevos", "Salsa tomate"], preparacion: ["Cocinar huevos dentro de la salsa."] },
-            { titulo: "14. Bowl de Yogur y Nueces", categoria: "Desayunos", ingredientes: ["Yogur griego", "Nueces"], preparacion: ["Servir y decorar."] },
-            { titulo: "15. Chilaquiles Low Carb", categoria: "Desayunos", ingredientes: ["Tortilla almendra", "Salsa"], preparacion: ["Dorar tortillas y bañar en salsa."] },
-            { titulo: "16. Huevo en Nube", categoria: "Desayunos", ingredientes: ["Huevos", "Parmesano"], preparacion: ["Hornear claras a punto nieve.", "Añadir yema al final."] },
-            { titulo: "17. Pollo al Curry", categoria: "Pollo", ingredientes: ["Pollo", "Leche de coco", "Curry"], preparacion: ["Cocinar pollo con coco y curry."] },
-            { titulo: "18. Pollo con Champiñones", categoria: "Pollo", ingredientes: ["Pollo", "Champiñones", "Crema"], preparacion: ["Saltear y mezclar con crema."] },
-            { titulo: "19. Pollo con Espinacas y Queso Crema", categoria: "Pollo", ingredientes: ["Pechuga", "Espinaca", "Queso crema"], preparacion: ["Rellenar pollo y sellar."] },
-            { titulo: "20. Alitas al Horno", categoria: "Pollo", ingredientes: ["Alitas", "Especias"], preparacion: ["Hornear hasta dorar."] },
-            { titulo: "21. Pollo al Pesto", categoria: "Pollo", ingredientes: ["Pollo", "Pesto casero"], preparacion: ["Cocinar pollo y bañar en pesto."] },
-            { titulo: "22. Nuggets Keto", categoria: "Pollo", ingredientes: ["Pollo picado", "Parmesano"], preparacion: ["Empanizar en queso y freír."] },
-            { titulo: "23. Pollo con Brócoli", categoria: "Pollo", ingredientes: ["Pollo", "Brócoli", "Soja"], preparacion: ["Saltear todo junto."] },
-            { titulo: "24. Ensalada de Pollo y Aguacate", categoria: "Pollo", ingredientes: ["Pollo", "Aguacate", "Mayonesa"], preparacion: ["Mezclar todo en frío."] },
-            { titulo: "25. Pollo Envuelto en Tocino", categoria: "Pollo", ingredientes: ["Pollo", "Tocino"], preparacion: ["Envolver y hornear."] },
-            { titulo: "26. Pollo a la Parmesana Keto", categoria: "Pollo", ingredientes: ["Pollo", "Salsa tomate", "Mozzarella"], preparacion: ["Hornear con salsa y queso."] },
-            { titulo: "27. Muslos de Pollo al Limón", categoria: "Pollo", ingredientes: ["Muslos", "Limón", "Ajo"], preparacion: ["Hornear con mucho limón."] },
-            { titulo: "28. Fajitas de Pollo", categoria: "Pollo", ingredientes: ["Pollo", "Pimientos", "Cebolla"], preparacion: ["Saltear tiras de pollo y vegetales."] },
-            { titulo: "29. Pollo Satay", categoria: "Pollo", ingredientes: ["Pollo", "Crema de maní"], preparacion: ["Cocinar con salsa de maní."] },
-            { titulo: "30. Sopa de Pollo y Vegetales", categoria: "Pollo", ingredientes: ["Pollo", "Caldo", "Vegetales"], preparacion: ["Hervir todo junto."] },
-            { titulo: "31. Pollo con Espárragos", categoria: "Pollo", ingredientes: ["Pollo", "Espárragos"], preparacion: ["Saltear con mantequilla."] },
-            { titulo: "32. Salpicón de Pollo", categoria: "Pollo", ingredientes: ["Pollo deshebrado", "Vegetales"], preparacion: ["Mezclar con limón."] },
-            { titulo: "33. Carne con Brócoli Oriental", categoria: "Carne", ingredientes: ["Res", "Brócoli", "Jengibre"], preparacion: ["Saltear a fuego alto."] },
-            { titulo: "34. Hamburguesa sin Pan", categoria: "Carne", ingredientes: ["Carne res", "Lechuga"], preparacion: ["Usar lechuga como envoltorio."] },
-            { titulo: "35. Albóndigas en Salsa Tomate", categoria: "Carne", ingredientes: ["Carne molida", "Salsa"], preparacion: ["Formar bolas y guisar."] },
-            { titulo: "36. Steak con Mantequilla de Ajo", categoria: "Carne", ingredientes: ["Steak", "Mantequilla"], preparacion: ["Sellar con ajo y mantequilla."] },
-            { titulo: "37. Carne Desmechada", categoria: "Carne", ingredientes: ["Falda de res", "Especias"], preparacion: ["Cocer lento y deshebrar."] },
-            { titulo: "38. Tacos en Hojas de Lechuga", categoria: "Carne", ingredientes: ["Carne picada", "Lechuga"], preparacion: ["Rellenar hojas de lechuga."] },
-            { titulo: "39. Pimientos Rellenos de Carne", categoria: "Carne", ingredientes: ["Pimientos", "Carne molida"], preparacion: ["Rellenar y hornear."] },
-            { titulo: "40. Lasaña de Berenjena", categoria: "Carne", ingredientes: ["Berenjena", "Carne", "Queso"], preparacion: ["Capas de berenjena y carne."] },
-            { titulo: "41. Chili con Carne Keto", categoria: "Carne", ingredientes: ["Carne molida", "Tomate", "Chile"], preparacion: ["Cocinar tipo estofado."] },
-            { titulo: "42. Rollitos de Carne y Espárragos", categoria: "Carne", ingredientes: ["Láminas de carne", "Espárragos"], preparacion: ["Envolver y sellar."] },
-            { titulo: "43. Roast Beef Casero", categoria: "Carne", ingredientes: ["Pieza de res", "Hierbas"], preparacion: ["Hornear a temperatura media."] },
-            { titulo: "44. Carne Guisada con Vegetales", categoria: "Carne", ingredientes: ["Carne cubos", "Calabacín"], preparacion: ["Guisar hasta suavizar."] },
-            { titulo: "45. Brochetas de Res", categoria: "Carne", ingredientes: ["Carne", "Pimientos"], preparacion: ["Armar y asar."] },
-            { titulo: "46. Pastel de Carne Keto", categoria: "Carne", ingredientes: ["Carne molida", "Huevo", "Tocino"], preparacion: ["Moldear y hornear."] },
-            { titulo: "47. Salmón al Horno", categoria: "Pescado", ingredientes: ["Salmón", "Limón"], preparacion: ["Hornear 15 min."] },
-            { titulo: "48. Ceviche de Pescado", categoria: "Pescado", ingredientes: ["Pescado blanco", "Limón"], preparacion: ["Marinar en limón."] },
-            { titulo: "49. Camarones al Ajillo", categoria: "Camarones", ingredientes: ["Camarones", "Ajo", "Mantequilla"], preparacion: ["Saltear con mucho ajo."] },
-            { titulo: "50. Atún con Costra de Sésamo", categoria: "Pescado", ingredientes: ["Atún", "Sésamo"], preparacion: ["Sellar brevemente."] },
-            { titulo: "51. Bacalao con Tomate", categoria: "Pescado", ingredientes: ["Bacalao", "Salsa tomate"], preparacion: ["Guisar el pescado."] },
-            { titulo: "52. Trucha a la Plancha", categoria: "Pescado", ingredientes: ["Trucha", "Mantequilla"], preparacion: ["Dorar por ambos lados."] },
-            { titulo: "53. Camarones con Coco", categoria: "Camarones", ingredientes: ["Camarones", "Leche coco"], preparacion: ["Cocinar en salsa de coco."] },
-            { titulo: "54. Pescado al Papillot", categoria: "Pescado", ingredientes: ["Pescado", "Vegetales"], preparacion: ["Hornear en sobre de papel."] },
-            { titulo: "55. Ensalada Fría de Salmón", categoria: "Pescado", ingredientes: ["Salmón", "Verdes"], preparacion: ["Mezclar ingredientes."] },
-            { titulo: "56. Brochetas de Camarón", categoria: "Camarones", ingredientes: ["Camarones", "Limón"], preparacion: ["Asar a la parrilla."] },
-            { titulo: "57. Filete de Pescado al Pesto", categoria: "Pescado", ingredientes: ["Pescado", "Pesto"], preparacion: ["Cubrir con pesto y hornear."] },
-            { titulo: "58. Mejillones al Vapor", categoria: "Mariscos", ingredientes: ["Mejillones", "Vino blanco"], preparacion: ["Cocer al vapor."] },
-            { titulo: "59. Tartar de Atún", categoria: "Pescado", ingredientes: ["Atún fresco", "Aguacate"], preparacion: ["Picar y sazonar en frío."] },
-            { titulo: "60. Pulpo a la Gallega Keto", categoria: "Mariscos", ingredientes: ["Pulpo", "Pimentón"], preparacion: ["Cocer y aliñar."] },
-            { titulo: "61. Zoodles Alfredo", categoria: "Vegetales", ingredientes: ["Calabacín", "Crema"], preparacion: ["Saltear zoodles con crema."] },
-            { titulo: "62. Ensalada César Keto", categoria: "Ensaladas", ingredientes: ["Lechuga", "Pollo", "Parmesano"], preparacion: ["Mezclar con aderezo."] },
-            { titulo: "63. Puré de Coliflor", categoria: "Vegetales", ingredientes: ["Coliflor", "Mantequilla"], preparacion: ["Hervir y triturar."] },
-            { titulo: "64. Espárragos con Tocino", categoria: "Vegetales", ingredientes: ["Espárragos", "Tocino"], preparacion: ["Envolver y hornear."] },
-            { titulo: "65. Berenjenas al Horno", categoria: "Vegetales", ingredientes: ["Berenjena", "Aceite"], preparacion: ["Rodajas al horno."] },
-            { titulo: "66. Ensalada Griega", categoria: "Ensaladas", ingredientes: ["Pepino", "Feta", "Aceitunas"], preparacion: ["Picar y mezclar."] },
-            { titulo: "67. Champiñones Rellenos", categoria: "Vegetales", ingredientes: ["Champiñones grandes", "Queso"], preparacion: ["Rellenar y hornear."] },
-            { titulo: "68. Arroz de Coliflor", categoria: "Vegetales", ingredientes: ["Coliflor rallada"], preparacion: ["Saltear 5 min."] },
-            { titulo: "69. Ensalada Caprese", categoria: "Ensaladas", ingredientes: ["Tomate", "Mozzarella", "Albahaca"], preparacion: ["Alternar rodajas."] },
-            { titulo: "70. Brócoli Gratinado", categoria: "Vegetales", ingredientes: ["Brócoli", "Queso"], preparacion: ["Hornear con queso."] },
-            { titulo: "71. Guacamole Casero", categoria: "Vegetales", ingredientes: ["Aguacate", "Cebolla", "Cilantro"], preparacion: ["Machacar y mezclar."] },
-            { titulo: "72. Espinacas a la Crema", categoria: "Vegetales", ingredientes: ["Espinacas", "Crema"], preparacion: ["Cocinar con crema."] },
-            { titulo: "73. Ensalada de Rúcula y Salmón", categoria: "Ensaladas", ingredientes: ["Rúcula", "Salmón ahumado"], preparacion: ["Mezclar todo."] },
-            { titulo: "74. Chips de Calabacín", categoria: "Vegetales", ingredientes: ["Calabacín", "Parmesano"], preparacion: ["Hornear láminas finas."] },
-            { titulo: "75. Crema de Calabaza Keto", categoria: "Cremas", ingredientes: ["Calabaza", "Leche coco"], preparacion: ["Licuar cocido."] },
-            { titulo: "76. Pizza Base de Coliflor", categoria: "Pizza", ingredientes: ["Coliflor", "Huevo", "Queso"], preparacion: ["Hacer masa y hornear."] },
-            { titulo: "77. Pizza Base de Pollo", categoria: "Pizza", ingredientes: ["Pollo molido", "Queso"], preparacion: ["Formar base y hornear."] },
-            { titulo: "78. Pizza de Berenjena", categoria: "Pizza", ingredientes: ["Rodajas berenjena", "Toppings"], preparacion: ["Usar rodaja como base."] },
-            { titulo: "79. Calzone Keto", categoria: "Pizza", ingredientes: ["Masa Fathead (queso/almendra)"], preparacion: ["Rellenar y cerrar."] },
-            { titulo: "80. Pizza de Champiñones", categoria: "Pizza", ingredientes: ["Champiñones portobello"], preparacion: ["Rellenar el hongo."] },
-            { titulo: "81. Mousse de Chocolate Keto", categoria: "Postres", ingredientes: ["Aguacate", "Cacao", "Eritritol"], preparacion: ["Licuar todo."] },
-            { titulo: "82. Galletas de Almendra", categoria: "Postres", ingredientes: ["Harina almendra", "Huevo"], preparacion: ["Formar y hornear."] },
-            { titulo: "83. Cheesecake Keto", categoria: "Postres", ingredientes: ["Queso crema", "Eritritol"], preparacion: ["Hornear al baño maría."] },
-            { titulo: "84. Trufas de Coco", categoria: "Postres", ingredientes: ["Coco rallado", "Queso crema"], preparacion: ["Formar bolitas."] },
-            { titulo: "85. Helado de Fresa Keto", categoria: "Postres", ingredientes: ["Fresas", "Crema de leche"], preparacion: ["Congelar y licuar."] },
-            { titulo: "86. Brownie de Taza", categoria: "Postres", ingredientes: ["Harina almendra", "Cacao", "1 huevo"], preparacion: ["Microondas 1 min."] },
-            { titulo: "87. Fat Bombs de Limón", categoria: "Postres", ingredientes: ["Mantequilla", "Limón"], preparacion: ["Mezclar y congelar."] },
-            { titulo: "88. Crepes de Huevo y Queso", categoria: "Desayunos", ingredientes: ["Huevo", "Queso crema"], preparacion: ["Batir y freír fino."] },
-            { titulo: "89. Salmón con Espárragos", categoria: "Pescado", ingredientes: ["Salmón", "Espárragos"], preparacion: ["Hornear juntos."] },
-            { titulo: "90. Hamburguesa de Pollo", categoria: "Pollo", ingredientes: ["Pollo molido", "Especias"], preparacion: ["Formar y asar."] },
-            { titulo: "91. Crema de Brócoli", categoria: "Cremas", ingredientes: ["Brócoli", "Queso crema"], preparacion: ["Hervir y licuar."] },
-            { titulo: "92. Carpaccio de Aguacate", categoria: "Ensaladas", ingredientes: ["Aguacate", "Limón", "Parmesano"], preparacion: ["Láminas finas aliñadas."] },
-            { titulo: "93. Ceviche de Camarón", categoria: "Camarones", ingredientes: ["Camarones", "Limón", "Cebolla"], preparacion: ["Mezclar en frío."] },
-            { titulo: "94. Carpaccio de Salmón", categoria: "Pescado", ingredientes: ["Salmón crudo", "Alcaparras"], preparacion: ["Láminas muy finas."] },
-            { titulo: "95. Ensalada de Atún", categoria: "Ensaladas", ingredientes: ["Atún", "Apio", "Cream cheese"], preparacion: ["Mezclar ingredientes."] },
-            { titulo: "96. Tacos de Pescado (Lechuga)", categoria: "Pescado", ingredientes: ["Pescado asado", "Lechuga"], preparacion: ["Rellenar hojas."] },
-            { titulo: "97. Rollitos de Jamón y Queso", categoria: "Snack", ingredientes: ["Jamón", "Queso crema"], preparacion: ["Envolver y cortar."] },
-            { titulo: "98. Huevos Rellenos de Atún", categoria: "Snack", ingredientes: ["Huevos duros", "Atún"], preparacion: ["Rellenar la clara."] },
-            { titulo: "99. Café Bomba", categoria: "Bebidas", ingredientes: ["Café", "Mantequilla", "Aceite coco"], preparacion: ["Licuar hasta espumar."] },
-            { titulo: "100. Té Matcha Keto", categoria: "Bebidas", ingredientes: ["Matcha", "Leche almendra"], preparacion: ["Batir caliente."] },
-            { titulo: "101. Batido Verde", categoria: "Bebidas", ingredientes: ["Espinaca", "Pepino", "Limón"], preparacion: ["Licuar todo."] },
-            { titulo: "102. Agua con Limón y Chía", categoria: "Bebidas", ingredientes: ["Agua", "Limón", "Chía"], preparacion: ["Reposar y beber."] },
-            { titulo: "103. Muffins de Salchicha", categoria: "Desayunos", ingredientes: ["Huevo", "Salchicha picada"], preparacion: ["Hornear en moldes."] },
-            { titulo: "104. Pan de Nube", categoria: "Pan", ingredientes: ["Huevos", "Queso crema"], preparacion: ["Hornear claras montadas."] },
-            { titulo: "105. Pan de Almendra Express", categoria: "Pan", ingredientes: ["Harina almendra", "Huevo", "Polvo hornear"], preparacion: ["Microondas 90 seg."] },
-            { titulo: "106. Salmón con Salsa de Eneldo", categoria: "Pescado", ingredientes: ["Salmón", "Crema", "Eneldo"], preparacion: ["Cocinar salmón y bañar."] },
-            { titulo: "107. Carne con Salsa de Pimienta", categoria: "Carne", ingredientes: ["Steak", "Pimienta", "Crema"], preparacion: ["Hacer salsa en la sartén."] },
-            { titulo: "108. Camarones al Pesto", categoria: "Camarones", ingredientes: ["Camarones", "Pesto"], preparacion: ["Saltear juntos."] },
-            { titulo: "109. Ensalada de Pepino y Vinagreta", categoria: "Ensaladas", ingredientes: ["Pepino", "Vinagre", "Aceite"], preparacion: ["Rodajas finas."] },
-            { titulo: "110. Postre de Frambuesa y Crema", categoria: "Postres", ingredientes: ["Frambuesas", "Crema montada"], preparacion: ["Mezclar suavemente."] },
-            { titulo: "111. Chocolate Negro con Sal", categoria: "Snack", ingredientes: ["Chocolate 85%", "Sal marina"], preparacion: ["Derretir y añadir sal."] }
-        ];
+    const grid = document.getElementById('recipesGrid');
+    const searchInput = document.getElementById('searchInput');
 
-        function mostrarLista(recetasAMostrar) {
-            const contenedor = document.getElementById("contenedor-recetas");
-            contenedor.innerHTML = "";
-            recetasAMostrar.forEach((receta) => {
-                const div = document.createElement("div");
-                div.className = "tarjeta-receta";
-                div.innerHTML = `<span>${receta.titulo}</span> <span>➜</span>`;
-                div.onclick = () => abrirReceta(receta);
-                contenedor.appendChild(div);
-            });
-        }
-
-        function filtrarRecetas() {
-            const texto = document.getElementById("buscador").value.toLowerCase();
-            const filtradas = recetas.filter(r => 
-                r.titulo.toLowerCase().includes(texto) || 
-                r.categoria.toLowerCase().includes(texto)
-            );
-            mostrarLista(filtradas);
-        }
-
-        function filtrarPorCat(cat) {
-            if(cat === 'Todas') return mostrarLista(recetas);
-            const filtradas = recetas.filter(r => r.categoria === cat);
-            mostrarLista(filtradas);
-        }
-
-        function abrirReceta(receta) {
-            const detalle = document.getElementById("detalle-receta");
-            detalle.innerHTML = `
-                <h2>${receta.titulo}</h2>
-                <div class="seccion-tit">🛒 Ingredientes</div>
-                <ul>${receta.ingredientes.map(i => `<li>${i}</li>`).join('')}</ul>
-                <div class="seccion-tit">👩‍🍳 Preparación</div>
-                <ol>${receta.preparacion.map(p => `<li>${p}</li>`).join('')}</ol>
+    function displayRecipes(data) {
+        grid.innerHTML = '';
+        data.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            card.onclick = () => openModal(r);
+            card.innerHTML = `
+                <div class="recipe-number">${r.n}</div>
+                <div class="recipe-content">
+                    <span class="category-tag">${r.cat}</span>
+                    <h3>${r.titulo}</h3>
+                    <p>${r.ing}</p>
+                </div>
             `;
-            document.getElementById("pantalla-principal").style.display = "none";
-            document.getElementById("vista-receta").style.display = "block";
-            document.getElementById("vista-receta").scrollTo(0, 0);
-        }
+            grid.appendChild(card);
+        });
+    }
 
-        function cerrarReceta() {
-            document.getElementById("vista-receta").style.display = "none";
-            document.getElementById("pantalla-principal").style.display = "block";
-        }
+    function openModal(recipe) {
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <h2>${recipe.n}. ${recipe.titulo}</h2>
+            <div class="modal-section">
+                <h4>🛒 Ingredientes</h4>
+                <p>${recipe.ing}</p>
+            </div>
+            <div class="modal-section">
+                <h4>👨‍🍳 Preparación</h4>
+                <p>${recipe.prep}</p>
+            </div>
+            <div style="background: #fdf2f0; padding: 15px; border-radius: 15px; font-size: 0.85rem; color: #666; border-left: 4px solid var(--accent);">
+                Tip: Alimentos de alta densidad nutricional para saciedad prolongada.
+            </div>
+        `;
+        document.getElementById('recipeModal').style.display = 'flex';
+    }
 
-        mostrarLista(recetas);
-    </script>
+    function closeModal(e) {
+        if(e.target.className === 'modal') {
+            document.getElementById('recipeModal').style.display = 'none';
+        }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = recetario.filter(r => 
+            r.titulo.toLowerCase().includes(term) || 
+            r.ing.toLowerCase().includes(term)
+        );
+        displayRecipes(filtered);
+    });
+
+    function filterCategory(cat) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if(cat === 'all') {
+            displayRecipes(recetario);
+        } else {
+            const filtered = recetario.filter(r => 
+                r.cat === cat || 
+                (cat === 'Proteínas' && (r.cat === 'Proteínas' || r.cat === 'Pescados' || r.cat === 'Carnes'))
+            );
+            displayRecipes(filtered);
+        }
+    }
+
+    function generateRandomMenu() {
+        const desayunos = recetario.filter(r => r.cat === "Desayunos");
+        const comidas = recetario.filter(r => r.cat === "Proteínas" || r.cat === "Carnes" || r.cat === "Pescados");
+        
+        const d = desayunos[Math.floor(Math.random() * desayunos.length)];
+        const c = comidas[Math.floor(Math.random() * comidas.length)];
+        
+        const res = document.getElementById('menu-result');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <h2 style="color:var(--primary); font-size:1.4rem;">🍴 Tu Menú del Día</h2>
+            <div style="margin-top:10px;">
+                <p><strong>Desayuno:</strong> ${d.titulo}</p>
+                <p><strong>Comida/Cena:</strong> ${c.titulo}</p>
+            </div>
+        `;
+        res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    displayRecipes(recetario);
+</script>
+
 </body>
 </html>
