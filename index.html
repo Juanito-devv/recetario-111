@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recetario 111 Recetas</title>
+    <style>
+        /* Estilos pensados para máxima legibilidad y facilidad de uso */
+        :root {
+            --color-fondo: #f9f9f9;
+            --color-texto: #333333;
+            --color-primario: #4CAF50;
+            --color-tarjeta: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            margin: 0;
+            padding: 0;
+            font-size: 18px; /* Letra grande por defecto */
+        }
+
+        header {
+            background-color: var(--color-primario);
+            color: white;
+            text-align: center;
+            padding: 20px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin: 0; font-size: 28px; }
+
+        .buscador-contenedor {
+            padding: 20px;
+            text-align: center;
+        }
+
+        #buscador {
+            width: 90%;
+            max-width: 400px;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        #buscador:focus { border-color: var(--color-primario); }
+
+        .lista-recetas {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px 20px;
+            padding-bottom: 40px;
+        }
+
+        .tarjeta-receta {
+            background-color: var(--color-tarjeta);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .tarjeta-receta:active { border-color: var(--color-primario); }
+
+        /* Pantalla de la receta completa */
+        #vista-receta {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--color-fondo);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .btn-volver {
+            background-color: var(--color-primario);
+            color: white;
+            width: 100%;
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            position: sticky;
+            top: 0;
+        }
+
+        .contenido-receta { padding: 20px; }
+        
+        .contenido-receta h2 { font-size: 26px; color: var(--color-primario); }
+        .contenido-receta h3 { font-size: 22px; margin-top: 25px; border-bottom: 2px solid #ddd; padding-bottom: 5px;}
+        .contenido-receta ul, .contenido-receta ol { padding-left: 20px; font-size: 20px; line-height: 1.6; }
+        .contenido-receta li { margin-bottom: 15px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-principal">
+        <header>
+            <h1>Recetario 111 Recetas</h1>
+            <p>Hecho con amor para Maga 🤍</p>
+        </header>
+
+        <div class="buscador-contenedor">
+            <input type="text" id="buscador" placeholder="🔍 Buscar receta o ingrediente..." onkeyup="filtrarRecetas()">
+        </div>
+
+        <div class="lista-recetas" id="contenedor-recetas">
+            </div>
+    </div>
+
+    <div id="vista-receta">
+        <button class="btn-volver" onclick="cerrarReceta()">⬅ Volver al listado</button>
+        <div class="contenido-receta" id="detalle-receta">
+            </div>
+    </div>
+
+    <script>
+        // Nuestra base de datos de recetas inicial (Extraída de tu PDF)
+        const recetas = [
+    { titulo: "1. Huevos con Bacon y Aguacate", categoria: "Desayunos", ingredientes: ["2 huevos", "1/2 aguacate", "2-3 tiras de bacon"], preparacion: ["Freír el bacon.", "Freír los huevos en la grasa del bacon.", "Servir con aguacate."] },
+    { titulo: "2. Omelette con Hongos", categoria: "Desayunos", ingredientes: ["2 huevos", "Hongos", "Aceitunas negras", "Queso mozzarella"], preparacion: ["Batir huevos.", "Cocinar en sartén.", "Rellenar con hongos, aceitunas y queso."] },
+    { titulo: "3. Pancakes de Requesón", categoria: "Pancakes", ingredientes: ["200g requesón", "2 huevos", "1 cda linaza"], preparacion: ["Mezclar ingredientes.", "Reposar 5 min.", "Cocinar en sartén con mantequilla."] },
+    { titulo: "4. Huevos con Tomate y Cebolla", categoria: "Desayunos", ingredientes: ["2 huevos", "Tomate picado", "Cebolla picada"], preparacion: ["Sofreír vegetales.", "Agregar huevos y revolver."] },
+    { titulo: "5. Huevos con Espinacas", categoria: "Desayunos", ingredientes: ["2 huevos", "Espinacas frescas", "Queso de cabra"], preparacion: ["Saltear espinacas.", "Añadir huevos batidos.", "Terminar con queso."] },
+    { titulo: "6. Pancakes de Harina de Almendra", categoria: "Pancakes", ingredientes: ["1 taza harina almendra", "2 huevos", "Vainilla"], preparacion: ["Mezclar todo.", "Cocinar discos pequeños en sartén."] },
+    { titulo: "7. Revuelto de Salmón Ahumado", categoria: "Desayunos", ingredientes: ["3 huevos", "Salmón ahumado", "Cebollino"], preparacion: ["Cocinar huevos a fuego bajo.", "Mezclar con salmón al final."] },
+    { titulo: "8. Aguacate Relleno de Huevo", categoria: "Desayunos", ingredientes: ["1 aguacate", "2 huevos"], preparacion: ["Poner huevo en el hueco del aguacate.", "Hornear 15 min a 200°C."] },
+    { titulo: "9. Pancakes de Calabaza", categoria: "Pancakes", ingredientes: ["2 huevos", "2 cdas puré calabaza", "Canela"], preparacion: ["Mezclar y cocinar en sartén."] },
+    { titulo: "10. Tostada de Batata con Huevo", categoria: "Desayunos", ingredientes: ["Rodaja de batata asada", "Huevo frito"], preparacion: ["Usar batata como base.", "Poner huevo encima."] },
+    { titulo: "11. Muffins de Huevo y Vegetales", categoria: "Desayunos", ingredientes: ["6 huevos", "Vegetales picados"], preparacion: ["Repartir en moldes de muffin.", "Hornear 20 min."] },
+    { titulo: "12. Pancakes de Coco", categoria: "Pancakes", ingredientes: ["Harina de coco", "Huevos"], preparacion: ["Mezclar, reposar y freír."] },
+    { titulo: "13. Shakshuka Express", categoria: "Desayunos", ingredientes: ["Huevos", "Salsa tomate"], preparacion: ["Cocinar huevos dentro de la salsa."] },
+    { titulo: "14. Bowl de Yogur y Nueces", categoria: "Desayunos", ingredientes: ["Yogur griego", "Nueces"], preparacion: ["Servir y decorar."] },
+    { titulo: "15. Chilaquiles Low Carb", categoria: "Desayunos", ingredientes: ["Tortilla almendra", "Salsa"], preparacion: ["Dorar tortillas y bañar en salsa."] },
+    { titulo: "16. Huevo en Nube", categoria: "Desayunos", ingredientes: ["Huevos", "Parmesano"], preparacion: ["Hornear claras a punto nieve.", "Añadir yema al final."] },
+    { titulo: "17. Pollo al Curry", categoria: "Pollo", ingredientes: ["Pollo", "Leche de coco", "Curry"], preparacion: ["Cocinar pollo con coco y curry."] },
+    { titulo: "18. Pollo con Champiñones", categoria: "Pollo", ingredientes: ["Pollo", "Champiñones", "Crema"], preparacion: ["Saltear y mezclar con crema."] },
+    { titulo: "19. Pollo con Espinacas y Queso Crema", categoria: "Pollo", ingredientes: ["Pechuga", "Espinaca", "Queso crema"], preparacion: ["Rellenar pollo y sellar."] },
+    { titulo: "20. Alitas al Horno", categoria: "Pollo", ingredientes: ["Alitas", "Especias"], preparacion: ["Hornear hasta dorar."] },
+    { titulo: "21. Pollo al Pesto", categoria: "Pollo", ingredientes: ["Pollo", "Pesto casero"], preparacion: ["Cocinar pollo y bañar en pesto."] },
+    { titulo: "22. Nuggets Keto", categoria: "Pollo", ingredientes: ["Pollo picado", "Parmesano"], preparacion: ["Empanizar en queso y freír."] },
+    { titulo: "23. Pollo con Brócoli", categoria: "Pollo", ingredientes: ["Pollo", "Brócoli", "Soja"], preparacion: ["Saltear todo junto."] },
+    { titulo: "24. Ensalada de Pollo y Aguacate", categoria: "Pollo", ingredientes: ["Pollo", "Aguacate", "Mayonesa"], preparacion: ["Mezclar todo en frío."] },
+    { titulo: "25. Pollo Envuelto en Tocino", categoria: "Pollo", ingredientes: ["Pollo", "Tocino"], preparacion: ["Envolver y hornear."] },
+    { titulo: "26. Pollo a la Parmesana Keto", categoria: "Pollo", ingredientes: ["Pollo", "Salsa tomate", "Mozzarella"], preparacion: ["Hornear con salsa y queso."] },
+    { titulo: "27. Muslos de Pollo al Limón", categoria: "Pollo", ingredientes: ["Muslos", "Limón", "Ajo"], preparacion: ["Hornear con mucho limón."] },
+    { titulo: "28. Fajitas de Pollo", categoria: "Pollo", ingredientes: ["Pollo", "Pimientos", "Cebolla"], preparacion: ["Saltear tiras de pollo y vegetales."] },
+    { titulo: "29. Pollo Satay", categoria: "Pollo", ingredientes: ["Pollo", "Crema de maní"], preparacion: ["Cocinar con salsa de maní."] },
+    { titulo: "30. Sopa de Pollo y Vegetales", categoria: "Pollo", ingredientes: ["Pollo", "Caldo", "Vegetales"], preparacion: ["Hervir todo junto."] },
+    { titulo: "31. Pollo con Espárragos", categoria: "Pollo", ingredientes: ["Pollo", "Espárragos"], preparacion: ["Saltear con mantequilla."] },
+    { titulo: "32. Salpicón de Pollo", categoria: "Pollo", ingredientes: ["Pollo deshebrado", "Vegetales"], preparacion: ["Mezclar con limón."] },
+    { titulo: "33. Carne con Brócoli Oriental", categoria: "Carne", ingredientes: ["Res", "Brócoli", "Jengibre"], preparacion: ["Saltear a fuego alto."] },
+    { titulo: "34. Hamburguesa sin Pan", categoria: "Carne", ingredientes: ["Carne res", "Lechuga"], preparacion: ["Usar lechuga como envoltorio."] },
+    { titulo: "35. Albóndigas en Salsa Tomate", categoria: "Carne", ingredientes: ["Carne molida", "Salsa"], preparacion: ["Formar bolas y guisar."] },
+    { titulo: "36. Steak con Mantequilla de Ajo", categoria: "Carne", ingredientes: ["Steak", "Mantequilla"], preparacion: ["Sellar con ajo y mantequilla."] },
+    { titulo: "37. Carne Desmechada", categoria: "Carne", ingredientes: ["Falda de res", "Especias"], preparacion: ["Cocer lento y deshebrar."] },
+    { titulo: "38. Tacos en Hojas de Lechuga", categoria: "Carne", ingredientes: ["Carne picada", "Lechuga"], preparacion: ["Rellenar hojas de lechuga."] },
+    { titulo: "39. Pimientos Rellenos de Carne", categoria: "Carne", ingredientes: ["Pimientos", "Carne molida"], preparacion: ["Rellenar y hornear."] },
+    { titulo: "40. Lasaña de Berenjena", categoria: "Carne", ingredientes: ["Berenjena", "Carne", "Queso"], preparacion: ["Capas de berenjena y carne."] },
+    { titulo: "41. Chili con Carne Keto", categoria: "Carne", ingredientes: ["Carne molida", "Tomate", "Chile"], preparacion: ["Cocinar tipo estofado."] },
+    { titulo: "42. Rollitos de Carne y Espárragos", categoria: "Carne", ingredientes: ["Láminas de carne", "Espárragos"], preparacion: ["Envolver y sellar."] },
+    { titulo: "43. Roast Beef Casero", categoria: "Carne", ingredientes: ["Pieza de res", "Hierbas"], preparacion: ["Hornear a temperatura media."] },
+    { titulo: "44. Carne Guisada con Vegetales", categoria: "Carne", ingredientes: ["Carne cubos", "Calabacín"], preparacion: ["Guisar hasta suavizar."] },
+    { titulo: "45. Brochetas de Res", categoria: "Carne", ingredientes: ["Carne", "Pimientos"], preparacion: ["Armar y asar."] },
+    { titulo: "46. Pastel de Carne Keto", categoria: "Carne", ingredientes: ["Carne molida", "Huevo", "Tocino"], preparacion: ["Moldear y hornear."] },
+    { titulo: "47. Salmón al Horno", categoria: "Pescado", ingredientes: ["Salmón", "Limón"], preparacion: ["Hornear 15 min."] },
+    { titulo: "48. Ceviche de Pescado", categoria: "Pescado", ingredientes: ["Pescado blanco", "Limón"], preparacion: ["Marinar en limón."] },
+    { titulo: "49. Camarones al Ajillo", categoria: "Camarones", ingredientes: ["Camarones", "Ajo", "Mantequilla"], preparacion: ["Saltear con mucho ajo."] },
+    { titulo: "50. Atún con Costra de Sésamo", categoria: "Pescado", ingredientes: ["Atún", "Sésamo"], preparacion: ["Sellar brevemente."] },
+    { titulo: "51. Bacalao con Tomate", categoria: "Pescado", ingredientes: ["Bacalao", "Salsa tomate"], preparacion: ["Guisar el pescado."] },
+    { titulo: "52. Trucha a la Plancha", categoria: "Pescado", ingredientes: ["Trucha", "Mantequilla"], preparacion: ["Dorar por ambos lados."] },
+    { titulo: "53. Camarones con Coco", categoria: "Camarones", ingredientes: ["Camarones", "Leche coco"], preparacion: ["Cocinar en salsa de coco."] },
+    { titulo: "54. Pescado al Papillot", categoria: "Pescado", ingredientes: ["Pescado", "Vegetales"], preparacion: ["Hornear en sobre de papel."] },
+    { titulo: "55. Ensalada Fría de Salmón", categoria: "Pescado", ingredientes: ["Salmón", "Verdes"], preparacion: ["Mezclar ingredientes."] },
+    { titulo: "56. Brochetas de Camarón", categoria: "Camarones", ingredientes: ["Camarones", "Limón"], preparacion: ["Asar a la parrilla."] },
+    { titulo: "57. Filete de Pescado al Pesto", categoria: "Pescado", ingredientes: ["Pescado", "Pesto"], preparacion: ["Cubrir con pesto y hornear."] },
+    { titulo: "58. Mejillones al Vapor", categoria: "Mariscos", ingredientes: ["Mejillones", "Vino blanco"], preparacion: ["Cocer al vapor."] },
+    { titulo: "59. Tartar de Atún", categoria: "Pescado", ingredientes: ["Atún fresco", "Aguacate"], preparacion: ["Picar y sazonar en frío."] },
+    { titulo: "60. Pulpo a la Gallega Keto", categoria: "Mariscos", ingredientes: ["Pulpo", "Pimentón"], preparacion: ["Cocer y aliñar."] },
+    { titulo: "61. Zoodles Alfredo", categoria: "Vegetales", ingredientes: ["Calabacín", "Crema"], preparacion: ["Saltear zoodles con crema."] },
+    { titulo: "62. Ensalada César Keto", categoria: "Ensaladas", ingredientes: ["Lechuga", "Pollo", "Parmesano"], preparacion: ["Mezclar con aderezo."] },
+    { titulo: "63. Puré de Coliflor", categoria: "Vegetales", ingredientes: ["Coliflor", "Mantequilla"], preparacion: ["Hervir y triturar."] },
+    { titulo: "64. Espárragos con Tocino", categoria: "Vegetales", ingredientes: ["Espárragos", "Tocino"], preparacion: ["Envolver y hornear."] },
+    { titulo: "65. Berenjenas al Horno", categoria: "Vegetales", ingredientes: ["Berenjena", "Aceite"], preparacion: ["Rodajas al horno."] },
+    { titulo: "66. Ensalada Griega", categoria: "Ensaladas", ingredientes: ["Pepino", "Feta", "Aceitunas"], preparacion: ["Picar y mezclar."] },
+    { titulo: "67. Champiñones Rellenos", categoria: "Vegetales", ingredientes: ["Champiñones grandes", "Queso"], preparacion: ["Rellenar y hornear."] },
+    { titulo: "68. Arroz de Coliflor", categoria: "Vegetales", ingredientes: ["Coliflor rallada"], preparacion: ["Saltear 5 min."] },
+    { titulo: "69. Ensalada Caprese", categoria: "Ensaladas", ingredientes: ["Tomate", "Mozzarella", "Albahaca"], preparacion: ["Alternar rodajas."] },
+    { titulo: "70. Brócoli Gratinado", categoria: "Vegetales", ingredientes: ["Brócoli", "Queso"], preparacion: ["Hornear con queso."] },
+    { titulo: "71. Guacamole Casero", categoria: "Vegetales", ingredientes: ["Aguacate", "Cebolla", "Cilantro"], preparacion: ["Machacar y mezclar."] },
+    { titulo: "72. Espinacas a la Crema", categoria: "Vegetales", ingredientes: ["Espinacas", "Crema"], preparacion: ["Cocinar con crema."] },
+    { titulo: "73. Ensalada de Rúcula y Salmón", categoria: "Ensaladas", ingredientes: ["Rúcula", "Salmón ahumado"], preparacion: ["Mezclar todo."] },
+    { titulo: "74. Chips de Calabacín", categoria: "Vegetales", ingredientes: ["Calabacín", "Parmesano"], preparacion: ["Hornear láminas finas."] },
+    { titulo: "75. Crema de Calabaza Keto", categoria: "Cremas", ingredientes: ["Calabaza", "Leche coco"], preparacion: ["Licuar cocido."] },
+    { titulo: "76. Pizza Base de Coliflor", categoria: "Pizza", ingredientes: ["Coliflor", "Huevo", "Queso"], preparacion: ["Hacer masa y hornear."] },
+    { titulo: "77. Pizza Base de Pollo", categoria: "Pizza", ingredientes: ["Pollo molido", "Queso"], preparacion: ["Formar base y hornear."] },
+    { titulo: "78. Pizza de Berenjena", categoria: "Pizza", ingredientes: ["Rodajas berenjena", "Toppings"], preparacion: ["Usar rodaja como base."] },
+    { titulo: "79. Calzone Keto", categoria: "Pizza", ingredientes: ["Masa Fathead (queso/almendra)"], preparacion: ["Rellenar y cerrar."] },
+    { titulo: "80. Pizza de Champiñones", categoria: "Pizza", ingredientes: ["Champiñones portobello"], preparacion: ["Rellenar el hongo."] },
+    { titulo: "81. Mousse de Chocolate Keto", categoria: "Postres", ingredientes: ["Aguacate", "Cacao", "Eritritol"], preparacion: ["Licuar todo."] },
+    { titulo: "82. Galletas de Almendra", categoria: "Postres", ingredientes: ["Harina almendra", "Huevo"], preparacion: ["Formar y hornear."] },
+    { titulo: "83. Cheesecake Keto", categoria: "Postres", ingredientes: ["Queso crema", "Eritritol"], preparacion: ["Hornear al baño maría."] },
+    { titulo: "84. Trufas de Coco", categoria: "Postres", ingredientes: ["Coco rallado", "Queso crema"], preparacion: ["Formar bolitas."] },
+    { titulo: "85. Helado de Fresa Keto", categoria: "Postres", ingredientes: ["Fresas", "Crema de leche"], preparacion: ["Congelar y licuar."] },
+    { titulo: "86. Brownie de Taza", categoria: "Postres", ingredientes: ["Harina almendra", "Cacao", "1 huevo"], preparacion: ["Microondas 1 min."] },
+    { titulo: "87. Fat Bombs de Limón", categoria: "Postres", ingredientes: ["Mantequilla", "Limón"], preparacion: ["Mezclar y congelar."] },
+    { titulo: "88. Crepes de Huevo y Queso", categoria: "Desayunos", ingredientes: ["Huevo", "Queso crema"], preparacion: ["Batir y freír fino."] },
+    { titulo: "89. Salmón con Espárragos", categoria: "Pescado", ingredientes: ["Salmón", "Espárragos"], preparacion: ["Hornear juntos."] },
+    { titulo: "90. Hamburguesa de Pollo", categoria: "Pollo", ingredientes: ["Pollo molido", "Especias"], preparacion: ["Formar y asar."] },
+    { titulo: "91. Crema de Brócoli", categoria: "Cremas", ingredientes: ["Brócoli", "Queso crema"], preparacion: ["Hervir y licuar."] },
+    { titulo: "92. Carpaccio de Aguacate", categoria: "Ensaladas", ingredientes: ["Aguacate", "Limón", "Parmesano"], preparacion: ["Láminas finas aliñadas."] },
+    { titulo: "93. Ceviche de Camarón", categoria: "Camarones", ingredientes: ["Camarones", "Limón", "Cebolla"], preparacion: ["Mezclar en frío."] },
+    { titulo: "94. Carpaccio de Salmón", categoria: "Pescado", ingredientes: ["Salmón crudo", "Alcaparras"], preparacion: ["Láminas muy finas."] },
+    { titulo: "95. Ensalada de Atún", categoria: "Ensaladas", ingredientes: ["Atún", "Apio", "Cream cheese"], preparacion: ["Mezclar ingredientes."] },
+    { titulo: "96. Tacos de Pescado (Lechuga)", categoria: "Pescado", ingredientes: ["Pescado asado", "Lechuga"], preparacion: ["Rellenar hojas."] },
+    { titulo: "97. Rollitos de Jamón y Queso", categoria: "Snack", ingredientes: ["Jamón", "Queso crema"], preparacion: ["Envolver y cortar."] },
+    { titulo: "98. Huevos Rellenos de Atún", categoria: "Snack", ingredientes: ["Huevos duros", "Atún"], preparacion: ["Rellenar la clara."] },
+    { titulo: "99. Café Bomba", categoria: "Bebidas", ingredientes: ["Café", "Mantequilla", "Aceite coco"], preparacion: ["Licuar hasta espumar."] },
+    { titulo: "100. Té Matcha Keto", categoria: "Bebidas", ingredientes: ["Matcha", "Leche almendra"], preparacion: ["Batir caliente."] },
+    { titulo: "101. Batido Verde", categoria: "Bebidas", ingredientes: ["Espinaca", "Pepino", "Limón"], preparacion: ["Licuar todo."] },
+    { titulo: "102. Agua con Limón y Chía", categoria: "Bebidas", ingredientes: ["Agua", "Limón", "Chía"], preparacion: ["Reposar y beber."] },
+    { titulo: "103. Muffins de Salchicha", categoria: "Desayunos", ingredientes: ["Huevo", "Salchicha picada"], preparacion: ["Hornear en moldes."] },
+    { titulo: "104. Pan de Nube", categoria: "Pan", ingredientes: ["Huevos", "Queso crema"], preparacion: ["Hornear claras montadas."] },
+    { titulo: "105. Pan de Almendra Express", categoria: "Pan", ingredientes: ["Harina almendra", "Huevo", "Polvo hornear"], preparacion: ["Microondas 90 seg."] },
+    { titulo: "106. Salmón con Salsa de Eneldo", categoria: "Pescado", ingredientes: ["Salmón", "Crema", "Eneldo"], preparacion: ["Cocinar salmón y bañar."] },
+    { titulo: "107. Carne con Salsa de Pimienta", categoria: "Carne", ingredientes: ["Steak", "Pimienta", "Crema"], preparacion: ["Hacer salsa en la sartén."] },
+    { titulo: "108. Camarones al Pesto", categoria: "Camarones", ingredientes: ["Camarones", "Pesto"], preparacion: ["Saltear juntos."] },
+    { titulo: "109. Ensalada de Pepino y Vinagreta", categoria: "Ensaladas", ingredientes: ["Pepino", "Vinagre", "Aceite"], preparacion: ["Rodajas finas."] },
+    { titulo: "110. Postre de Frambuesa y Crema", categoria: "Postres", ingredientes: ["Frambuesas", "Crema montada"], preparacion: ["Mezclar suavemente."] },
+    { titulo: "111. Chocolate Negro con Sal", categoria: "Snack", ingredientes: ["Chocolate 85%", "Sal marina"], preparacion: ["Derretir y añadir sal."] }
+];
+
+        // Función para mostrar la lista en pantalla
+        function mostrarLista(filtro = "") {
+            const contenedor = document.getElementById("contenedor-recetas");
+            contenedor.innerHTML = ""; // Limpiar lista
+
+            const recetasFiltradas = recetas.filter(receta => 
+                receta.titulo.toLowerCase().includes(filtro.toLowerCase())
+            );
+
+            recetasFiltradas.forEach((receta, index) => {
+                const div = document.createElement("div");
+                div.className = "tarjeta-receta";
+                div.textContent = receta.titulo;
+                // Al hacer clic, abrimos la receta (pasamos el objeto receta original)
+                div.onclick = () => abrirReceta(receta);
+                contenedor.appendChild(div);
+            });
+        }
+
+        // Función que se ejecuta al escribir en el buscador
+        function filtrarRecetas() {
+            const texto = document.getElementById("buscador").value;
+            mostrarLista(texto);
+        }
+
+        // Función para ver los detalles de una receta
+        function abrirReceta(receta) {
+            const detalle = document.getElementById("detalle-receta");
+            
+            // Construimos el HTML interno de los ingredientes
+            let htmlIngredientes = "<ul>";
+            receta.ingredientes.forEach(ing => { htmlIngredientes += `<li>${ing}</li>`; });
+            htmlIngredientes += "</ul>";
+
+            // Construimos el HTML interno de los pasos
+            let htmlPreparacion = "<ol>";
+            receta.preparacion.forEach(paso => { htmlPreparacion += `<li>${paso}</li>`; });
+            htmlPreparacion += "</ol>";
+
+            // Pegamos todo en la pantalla
+            detalle.innerHTML = `
+                <h2>${receta.titulo}</h2>
+                <h3>Ingredientes</h3>
+                ${htmlIngredientes}
+                <h3>Preparación</h3>
+                ${htmlPreparacion}
+            `;
+
+            // Ocultamos el menú y mostramos la receta
+            document.getElementById("pantalla-principal").style.display = "none";
+            document.getElementById("vista-receta").style.display = "block";
+            // Llevamos la vista hacia arriba
+            document.getElementById("vista-receta").scrollTo(0, 0);
+        }
+
+        // Función para regresar al menú
+        function cerrarReceta() {
+            document.getElementById("vista-receta").style.display = "none";
+            document.getElementById("pantalla-principal").style.display = "block";
+        }
+
+        // Mostrar todo al cargar la página
+        mostrarLista();
+    </script>
+</body>
+</html>
