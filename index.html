@@ -59,6 +59,7 @@
         .dot { height: 10px; width: 10px; background-color: #4CAF50; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
 
         @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -88,7 +89,7 @@
     <div class="modal-content">
         <span style="position:absolute; top:15px; right:25px; cursor:pointer; font-size:2.5rem; color:#ccc;" onclick="closeModal()">&times;</span>
         <div id="modalBody"></div>
-        <div class="wake-lock-status"><span class="dot"></span> <span>Pantalla siempre encendida</span></div>
+        <div class="wake-lock-status"><span class="dot"></span> <span>Modo Cocina: Pantalla Encendida</span></div>
     </div>
 </div>
 
@@ -229,24 +230,17 @@
     function init() {
         displayRecipes(recetario);
         setupKeyboardDismiss();
-        registerServiceWorker();
+        // Registro del Service Worker externo
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
     }
 
-    // --- NUEVA FUNCIÓN: GESTIÓN DE TECLADO ---
     function setupKeyboardDismiss() {
-        // 1. Esconder teclado al presionar "Enter" (Buscar)
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchInput.blur(); 
-            }
-        });
-
-        // 2. Esconder teclado al hacer scroll hacia abajo
-        window.addEventListener('scroll', () => {
-            if (document.activeElement === searchInput) {
-                searchInput.blur();
-            }
-        }, { passive: true });
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchInput.blur(); });
+        window.addEventListener('scroll', () => { if (document.activeElement === searchInput) searchInput.blur(); }, { passive: true });
     }
 
     function displayRecipes(data) {
@@ -274,14 +268,13 @@
         displayRecipes(filtered);
     });
 
-    // Filtros y Modal (Lógica anterior optimizada)
     document.getElementById('filtersContainer').addEventListener('click', (e) => {
         if (!e.target.classList.contains('filter-btn')) return;
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         const cat = e.target.dataset.cat;
         displayRecipes(cat === 'all' ? recetario : recetario.filter(r => r.cat === cat));
-        searchInput.blur(); // También esconder teclado al filtrar
+        searchInput.blur();
     });
 
     function scaleIngredients(text, factor) {
@@ -305,7 +298,7 @@
     function renderModal() {
         const body = document.getElementById('modalBody');
         body.innerHTML = `
-            <h2>${selectedRecipe.titulo}</h2>
+            <h2 style="color:var(--primary);">${selectedRecipe.titulo}</h2>
             <div class="servings-control">
                 <span>Porciones: ${currentServings}</span>
                 <div style="display:flex; gap:10px;">
@@ -313,10 +306,14 @@
                     <button class="s-btn" onclick="updateServings(1)">+</button>
                 </div>
             </div>
-            <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:15px;">
-                <strong>🛒 Ingredientes:</strong><br>${scaleIngredients(selectedRecipe.ing, currentServings)}
+            <div style="background:#f9f9f9; padding:20px; border-radius:20px; margin-bottom:20px;">
+                <h4 style="color:var(--accent); font-size:0.8rem; text-transform:uppercase;">🛒 Ingredientes</h4>
+                <p style="margin-top:5px;">${scaleIngredients(selectedRecipe.ing, currentServings)}</p>
             </div>
-            <div><strong>👨‍🍳 Preparación:</strong><br>${selectedRecipe.prep}</div>
+            <div>
+                <h4 style="color:var(--accent); font-size:0.8rem; text-transform:uppercase;">👨‍🍳 Preparación</h4>
+                <p style="margin-top:5px;">${selectedRecipe.prep}</p>
+            </div>
         `;
     }
 
@@ -328,13 +325,14 @@
     };
     window.handleOutsideClick = (e) => { if (e.target.id === 'recipeModal') closeModal(); };
 
-    function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            const sw = "self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));";
-            const blob = new Blob([sw], { type: 'application/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-        }
-    }
+    window.generateRandomMenu = () => {
+        const d = recetario.filter(r => r.cat === "Desayunos");
+        const p = recetario.filter(r => r.cat === "Proteínas" || r.cat === "Carnes");
+        const res = document.getElementById('menu-result');
+        res.style.display = 'block';
+        res.innerHTML = `<h3>🍴 Menú Sugerido</h3><p>☀️ ${d[Math.floor(Math.random()*d.length)].titulo}</p><p>🍖 ${p[Math.floor(Math.random()*p.length)].titulo}</p>`;
+        res.scrollIntoView({ behavior: 'smooth' });
+    };
 
     init();
 </script>
