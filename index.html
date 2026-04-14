@@ -29,12 +29,13 @@
         header { background: var(--primary); color: white; padding: 3rem 1rem; text-align: center; border-radius: 0 0 40px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
 
-        /* Buscador Pro */
-        .search-container { max-width: 800px; margin: -30px auto 25px; padding: 0 1.5rem; }
-        input[type="text"] { width: 100%; padding: 18px 28px; border-radius: 50px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.1); font-size: 1rem; outline: none; transition: 0.3s; }
-        input[type="text"]:focus { box-shadow: 0 8px 25px rgba(45, 106, 79, 0.2); }
+        .search-container { max-width: 800px; margin: -30px auto 25px; padding: 0 1.5rem; position: sticky; top: 10px; z-index: 100; }
+        input[type="search"] { 
+            width: 100%; padding: 18px 28px; border-radius: 50px; border: none; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); font-size: 1rem; outline: none; 
+            transition: 0.3s; -webkit-appearance: none; 
+        }
 
-        /* Filtros */
         .filters { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 30px; padding: 0 1rem; }
         .filter-btn { padding: 10px 18px; border-radius: 25px; border: 1.5px solid var(--primary); background: white; color: var(--primary); cursor: pointer; transition: all 0.3s; font-weight: 600; font-size: 0.9rem; }
         .filter-btn.active { background: var(--primary); color: white; }
@@ -43,35 +44,21 @@
 
         #menu-result { max-width: 600px; margin: 0 auto 30px; padding: 20px; background: #e9f5ee; border-radius: 20px; display: none; border: 2px dashed var(--primary); text-align: center; animation: fadeIn 0.5s; }
 
-        /* Grid de Recetas */
         .recipes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 0 1.5rem 4rem; max-width: 1200px; margin: 0 auto; }
         .recipe-card { background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; border: 1px solid transparent; position: relative; }
-        .recipe-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
         .recipe-content { padding: 20px; }
-        .recipe-number { position: absolute; top: 15px; right: 20px; font-size: 1.2rem; font-weight: 900; color: var(--primary); opacity: 0.1; }
         .category-tag { font-size: 0.7rem; text-transform: uppercase; background: var(--secondary); color: var(--primary); padding: 4px 12px; border-radius: 50px; font-weight: bold; }
 
-        /* Modal y Control de Porciones */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 15px; }
-        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 30px; padding: 30px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 30px; padding: 30px; position: relative; max-height: 85vh; overflow-y: auto; }
         
         .servings-control { background: #f0f7f4; padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin: 20px 0; border: 1px solid var(--secondary); }
-        .servings-control span { font-weight: 600; color: var(--primary); }
-        .servings-btns { display: flex; gap: 15px; }
-        .s-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--primary); color: white; cursor: pointer; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .s-btn:active { transform: scale(0.9); }
+        .s-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--primary); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
         .wake-lock-status { font-size: 0.75rem; color: #2d6a4f; display: flex; align-items: center; gap: 8px; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; }
         .dot { height: 10px; width: 10px; background-color: #4CAF50; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
 
         @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 600px) {
-            header { padding: 2rem 1rem; }
-            header h1 { font-size: 1.6rem; }
-            .modal-content { padding: 20px; }
-        }
     </style>
 </head>
 <body>
@@ -82,7 +69,7 @@
 </header>
 
 <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Ej: salmón aguacate, desayuno keto...">
+    <input type="search" id="searchInput" placeholder="Busca ingredientes o platos..." enterkeyhint="search">
 </div>
 
 <div class="filters" id="filtersContainer">
@@ -94,24 +81,18 @@
 </div>
 
 <button class="magic-btn" onclick="generateRandomMenu()">✨ Menú Sorpresa</button>
-
 <div id="menu-result"></div>
-
 <div class="recipes-grid" id="recipesGrid"></div>
 
 <div id="recipeModal" class="modal" onclick="handleOutsideClick(event)">
     <div class="modal-content">
         <span style="position:absolute; top:15px; right:25px; cursor:pointer; font-size:2.5rem; color:#ccc;" onclick="closeModal()">&times;</span>
         <div id="modalBody"></div>
-        <div class="wake-lock-status">
-            <span class="dot"></span> 
-            <span>Modo Cocina Activo: La pantalla no se apagará.</span>
-        </div>
+        <div class="wake-lock-status"><span class="dot"></span> <span>Pantalla siempre encendida</span></div>
     </div>
 </div>
 
 <script>
-    // --- PEGA TUS RECETAS AQUÍ ---
       const recetario = [
     // --- DESAYUNOS (1-22) ---
     { n: 1, cat: "Desayunos", titulo: "Huevos con Bacon y Aguacate", ing: "2 huevos orgánicos o de pastoreo, 1/2 aguacate maduro, 2-3 tiras de bacon (tocino) sin azúcar añadida, sal de mar y pimienta negra al gusto.", prep: "En una sartén fría, coloque las tiras de bacon y encienda el fuego a nivel medio. Cocine hasta que estén crujientes por ambos lados. Retire el bacon y, utilizando la grasa natural que quedó en la sartén, fría los huevos al término de su preferencia. Sirva inmediatamente junto con el medio aguacate rebanado, sazonando todo con sal y pimienta." },
@@ -242,36 +223,48 @@
     let currentServings = 1;
     let wakeLock = null;
     let selectedRecipe = null;
-
     const grid = document.getElementById('recipesGrid');
     const searchInput = document.getElementById('searchInput');
 
-    // Inicializar App
     function init() {
         displayRecipes(recetario);
-        setupFilters();
+        setupKeyboardDismiss();
         registerServiceWorker();
     }
 
+    // --- NUEVA FUNCIÓN: GESTIÓN DE TECLADO ---
+    function setupKeyboardDismiss() {
+        // 1. Esconder teclado al presionar "Enter" (Buscar)
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchInput.blur(); 
+            }
+        });
+
+        // 2. Esconder teclado al hacer scroll hacia abajo
+        window.addEventListener('scroll', () => {
+            if (document.activeElement === searchInput) {
+                searchInput.blur();
+            }
+        }, { passive: true });
+    }
+
     function displayRecipes(data) {
-        grid.innerHTML = data.length > 0 ? '' : '<p style="text-align:center; grid-column:1/-1;">No se encontraron recetas.</p>';
+        grid.innerHTML = data.length > 0 ? '' : '<p style="text-align:center; grid-column:1/-1;">No hay resultados.</p>';
         data.forEach(r => {
             const card = document.createElement('div');
             card.className = 'recipe-card';
             card.onclick = () => openModal(r);
             card.innerHTML = `
-                <div class="recipe-number">${r.n}</div>
                 <div class="recipe-content">
                     <span class="category-tag">${r.cat}</span>
-                    <h3 style="margin-top:10px; font-size:1.1rem;">${r.titulo}</h3>
-                    <p style="font-size:0.8rem; color:#666; margin-top:5px;">${r.ing.substring(0, 60)}...</p>
+                    <h3 style="margin-top:10px;">${r.titulo}</h3>
                 </div>
             `;
             grid.appendChild(card);
         });
     }
 
-    // Buscador avanzado (Múltiples palabras)
     searchInput.addEventListener('input', (e) => {
         const terms = e.target.value.toLowerCase().split(' ').filter(t => t !== '');
         const filtered = recetario.filter(r => {
@@ -281,25 +274,19 @@
         displayRecipes(filtered);
     });
 
-    // Filtros por categoría
-    function setupFilters() {
-        document.getElementById('filtersContainer').addEventListener('click', (e) => {
-            if (!e.target.classList.contains('filter-btn')) return;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            const cat = e.target.dataset.cat;
-            const filtered = cat === 'all' ? recetario : recetario.filter(r => r.cat === cat);
-            displayRecipes(filtered);
-        });
-    }
+    // Filtros y Modal (Lógica anterior optimizada)
+    document.getElementById('filtersContainer').addEventListener('click', (e) => {
+        if (!e.target.classList.contains('filter-btn')) return;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const cat = e.target.dataset.cat;
+        displayRecipes(cat === 'all' ? recetario : recetario.filter(r => r.cat === cat));
+        searchInput.blur(); // También esconder teclado al filtrar
+    });
 
-    // Lógica de Escalado de Ingredientes
     function scaleIngredients(text, factor) {
         return text.replace(/(\d+(?:\.\d+)?)/g, (match) => {
-            const num = parseFloat(match);
-            if (isNaN(num)) return match;
-            const result = num * factor;
+            const result = parseFloat(match) * factor;
             return result % 1 === 0 ? result : result.toFixed(1);
         });
     }
@@ -310,8 +297,6 @@
         renderModal();
         document.getElementById('recipeModal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
-
-        // Activar Wake Lock (Pantalla Encendida)
         if ('wakeLock' in navigator) {
             try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
         }
@@ -319,85 +304,39 @@
 
     function renderModal() {
         const body = document.getElementById('modalBody');
-        const ingredients = scaleIngredients(selectedRecipe.ing, currentServings);
-        
         body.innerHTML = `
-            <span class="category-tag">${selectedRecipe.cat}</span>
-            <h2 style="color:var(--primary); margin: 10px 0 20px;">${selectedRecipe.titulo}</h2>
-            
+            <h2>${selectedRecipe.titulo}</h2>
             <div class="servings-control">
-                <span>Porciones para: <strong>${currentServings}</strong></span>
-                <div class="servings-btns">
+                <span>Porciones: ${currentServings}</span>
+                <div style="display:flex; gap:10px;">
                     <button class="s-btn" onclick="updateServings(-1)">−</button>
                     <button class="s-btn" onclick="updateServings(1)">+</button>
                 </div>
             </div>
-
-            <div style="margin-bottom:25px;">
-                <h4 style="color:var(--accent); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">🛒 Ingredientes</h4>
-                <div style="background:#f9f9f9; padding:20px; border-radius:20px; margin-top:10px; line-height:1.8;">
-                    ${ingredients}
-                </div>
+            <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:15px;">
+                <strong>🛒 Ingredientes:</strong><br>${scaleIngredients(selectedRecipe.ing, currentServings)}
             </div>
-
-            <div>
-                <h4 style="color:var(--accent); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">👨‍🍳 Preparación</h4>
-                <p style="margin-top:10px; color:#444;">${selectedRecipe.prep}</p>
-            </div>
+            <div><strong>👨‍🍳 Preparación:</strong><br>${selectedRecipe.prep}</div>
         `;
     }
 
-    window.updateServings = (delta) => {
-        currentServings = Math.max(1, currentServings + delta);
-        renderModal();
-    };
-
+    window.updateServings = (delta) => { currentServings = Math.max(1, currentServings + delta); renderModal(); };
     window.closeModal = () => {
         document.getElementById('recipeModal').style.display = 'none';
         document.body.style.overflow = 'auto';
         if (wakeLock) { wakeLock.release(); wakeLock = null; }
     };
+    window.handleOutsideClick = (e) => { if (e.target.id === 'recipeModal') closeModal(); };
 
-    window.handleOutsideClick = (e) => {
-        if (e.target.id === 'recipeModal') closeModal();
-    };
-
-    window.generateRandomMenu = () => {
-        const d = recetario.filter(r => r.cat === "Desayunos");
-        const p = recetario.filter(r => r.cat === "Proteínas" || r.cat === "Carnes");
-        const randomD = d[Math.floor(Math.random() * d.length)];
-        const randomP = p[Math.floor(Math.random() * p.length)];
-        
-        const res = document.getElementById('menu-result');
-        res.style.display = 'block';
-        res.innerHTML = `
-            <h3 style="color:var(--primary);">🍴 Menú Sugerido</h3>
-            <p style="margin-top:8px;"><strong>Mañana:</strong> ${randomD.titulo}</p>
-            <p><strong>Tarde/Noche:</strong> ${randomP.titulo}</p>
-        `;
-        res.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    };
-
-    // Registro automático de Service Worker para PWA (Offline)
     function registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-            const swCode = `
-                const cacheName = 'nutri-v1';
-                self.addEventListener('install', e => {
-                    e.waitUntil(caches.open(cacheName).then(cache => cache.addAll(['./', './index.html'])));
-                });
-                self.addEventListener('fetch', e => {
-                    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-                });
-            `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl).catch(() => {});
+            const sw = "self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));";
+            const blob = new Blob([sw], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
         }
     }
 
     init();
 </script>
-
 </body>
 </html>
